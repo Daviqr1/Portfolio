@@ -1,0 +1,159 @@
+.designerGirlbroIcon {
+    width: 488px;
+    height: 396px;
+    object-fit: contain;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.techStack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.aboutMe {
+    line-height: 16px;
+}
+
+.imAPassionate {
+    width: 514.2px;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 500;
+    font-family: Heebo;
+    color: #f5f6f6;
+    display: inline-block;
+}
+
+.headline {
+    width: 592px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 8px;
+}
+
+.beyondCodingIm {
+    width: 592px;
+    line-height: 24px;
+    font-family: Heebo;
+    color: #cdd0d4;
+    display: inline-block;
+}
+
+.container2 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 16px;
+}
+
+.readcvlogoIcon {
+    width: 24px;
+    height: 24px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.label {
+    flex: 1;
+    line-height: 24px;
+    font-weight: 500;
+}
+
+.button {
+    border-radius: 8px;
+    background-color: #8a42db;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 24px;
+    box-sizing: border-box;
+    gap: 8px;
+    min-width: 112px;
+    text-align: center;
+    color: #f5f6f6;
+    font-family: Heebo;
+}
+
+.container1 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 32px;
+}
+
+.container {
+    flex: 1;
+    width: 100%;
+    border-radius: 16px;
+    background-color: #2c243b;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 72px;
+    box-sizing: border-box;
+    gap: 136px;
+    text-align: left;
+    font-size: 16px;
+    color: #7dffaf;
+    font-family: Kalam;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        padding: 32px;
+        gap: 32px;
+    }
+
+    .container1, .container2 {
+        width: 100%;
+        align-items: center;
+    }
+
+    .imAPassionate, .beyondCodingIm, .headline {
+        width: 100%;
+        text-align: center;
+    }
+
+    .designerGirlbroIcon {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 16px;
+    }
+
+    .imAPassionate {
+        font-size: 20px;
+        line-height: 28px;
+    }
+
+    .headline {
+        font-size: 14px;
+    }
+
+    .button {
+        padding: 8px 16px;
+    }
+}

@@ -4,6 +4,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   assetsInclude: ['**/*.glb', '**/*.gltf'],
-  base: "/vite-deploy/"
+  base: "/vite-deploy/",
   
 })

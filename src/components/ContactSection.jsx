@@ -6,7 +6,7 @@ const ContactSection = () => {
     <div className={styles.contactSection}>
       <div className={styles.container}>
         <div className={styles.div}>
-          <img className={styles.cuteAvatarIcon} alt="" src="/images/Webinar-rafiki.svg" />
+          <img className={styles.cuteAvatarIcon} alt="" src="../public/images/Webinar-rafiki.svg" />
           <div className={styles.text}>
             <div className={styles.headline}>
               <div className={styles.contact}>Contact</div>
@@ -19,13 +19,13 @@ const ContactSection = () => {
             </div>
             <div className={styles.socialIcons}>
               <a href="https://github.com/Daviqr1" target="_blank" rel="noopener noreferrer" className={styles.iconbutton}>
-                <img className={styles.logoIcon} alt="GitHub" src="/images/logo-github 1.svg" />
+                <img className={styles.logoIcon} alt="GitHub" src="../public/images/logo-github 1.svg" />
               </a>
               <a href="https://www.linkedin.com/in/davi-rezende-09540b222/" target="_blank" rel="noopener noreferrer" className={styles.iconbutton}>
-                <img className={styles.logoIcon} alt="LinkedIn" src="/images/logo-linkedin 1.svg" />
+                <img className={styles.logoIcon} alt="LinkedIn" src="../public/images/logo-linkedin 1.svg" />
               </a>
               <a href="https://www.instagram.com/davi_b.rezende" target="_blank" rel="noopener noreferrer" className={styles.iconbutton}>
-                <img className={styles.logoIcon} alt="Instagram" src="/images/logo-instagram 1.svg" />
+                <img className={styles.logoIcon} alt="Instagram" src="../public/images/logo-instagram 1.svg" />
               </a>
             </div>
           </div>
@@ -47,7 +47,7 @@ const ContactSection = () => {
           </div>
           <button type="submit" className={styles.button}>
             <div className={styles.label}>Send me a message</div>
-            <img className={styles.logoGithub1Icon} alt="" src="/images/ArrowRight.svg" />
+            <img className={styles.logoGithub1Icon} alt="" src="../public/images/ArrowRight.svg" />
           </button>
         </form>
       </div>

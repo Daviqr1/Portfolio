@@ -208,16 +208,16 @@ const Headline = () => {
         </Text>
         <Cta>
           <Button href="/images/CV Dai Rezende Software Engineer En_us.pdf" download>
-            <ReadcvlogoIcon alt="Read CV" src="/images/ReadCvLogo.svg" />
+            <ReadcvlogoIcon alt="Read CV" src="../public/images/ReadCvLogo.svg" />
             <Label>My resume</Label>
           </Button>
           <Button1 href="https://wa.me/5527997602355" target="_blank" rel="noopener noreferrer">
             <Label>Get in touch</Label>
-            <ReadcvlogoIcon alt="Arrow Right" src="/images/ArrowRight.svg" />
+            <ReadcvlogoIcon alt="Arrow Right" src="../public/images/ArrowRight.svg" />
           </Button1>
         </Cta>
       </Container>
-      <CodeTypingbroIcon alt="Code Typing" src="/images/Code_typing_bro.svg" />
+      <CodeTypingbroIcon alt="Code Typing" src="../public/images/Code_typing_bro.svg" />
     </HeadlineContainer>
   );
 };

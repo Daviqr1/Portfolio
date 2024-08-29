@@ -7,13 +7,13 @@ const AboutSection = () => {
             <img className={styles.designerGirlbroIcon} alt="" src="../public/images/Programming-bro.svg" />
             <div className={styles.container1}>
                 <div className={styles.techStack}>
-                    <img className={styles.icon} alt="" src="../public/images/Laravel.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/React.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/Mysql.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/Tailwind.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/Python.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/Php.svg" />
-                    <img className={styles.icon} alt="" src="../public/images/Vitejs.svg" />
+                    <img className={styles.icon} alt="" src="/images/Laravel.svg" />
+                    <img className={styles.icon} alt="" src="/images/React.svg" />
+                    <img className={styles.icon} alt="" src="/images/Mysql.svg" />
+                    <img className={styles.icon} alt="" src="/images/Tailwind.svg" />
+                    <img className={styles.icon} alt="" src="/images/Python.svg" />
+                    <img className={styles.icon} alt="" src="/images/Php.svg" />
+                    <img className={styles.icon} alt="" src="/images/Vitejs.svg" />
                 </div>
                 <div className={styles.container2}>
                     <div className={styles.headline}>

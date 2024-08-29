@@ -4,7 +4,7 @@ import styles from './AboutSection.module.css';
 const AboutSection = () => {
     return (
         <div className={styles.container}>
-            <img className={styles.designerGirlbroIcon} alt="" src="../public/images/Programming-bro.svg" />
+            <img className={styles.designerGirlbroIcon} alt="" src="/images/Programming-bro.svg" />
             <div className={styles.container1}>
                 <div className={styles.techStack}>
                     <img className={styles.icon} alt="" src="/images/Laravel.svg" />

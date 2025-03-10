@@ -4,17 +4,24 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import spacemanScene from "../assets/3d/spaceman.glb";
 import CanvasLoader from "./Loader";
 
-const Spaceman = ({ scale, position }) => {
+const Spaceman = ({ scale, position, rotationX, rotationY }) => {
   const spacemanRef = useRef();
   const { scene, animations } = useGLTF(spacemanScene);
   const { actions } = useAnimations(animations, spacemanRef);
 
   useEffect(() => {
-    actions["Idle"].play();
+    if (actions["Idle"]) {
+      actions["Idle"].play();
+    }
   }, [actions]);
 
   return (
-    <mesh ref={spacemanRef} position={position} scale={scale} rotation={[0, 2.2, 0]}>
+    <mesh 
+      ref={spacemanRef} 
+      position={position} 
+      scale={scale} 
+      rotation={[rotationX || 0, 2.2, rotationY || 0]}
+    >
       <primitive object={scene} />
     </mesh>
   );
@@ -28,6 +35,16 @@ const SpacemanCanvas = ({ scrollContainer }) => {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (!scrollContainer || !scrollContainer.current) {
+        // Usar window.scrollY se scrollContainer não estiver disponível
+        const scrollTop = window.scrollY;
+        const rotationXValue = scrollTop * -0.0006;
+        const rotationYValue = scrollTop * -0.00075;
+        setRotationX(rotationXValue);
+        setRotationY(rotationYValue);
+        return;
+      }
+      
       const scrollTop = scrollContainer.current.scrollTop;
       const rotationXValue = scrollTop * -0.0006;
       const rotationYValue = scrollTop * -0.00075;
@@ -55,17 +72,28 @@ const SpacemanCanvas = ({ scrollContainer }) => {
     };
 
     handleResize();
-    window.addEventListener("scroll", handleScroll);
+    
+    // Garantir que o scroll funcione mesmo sem scrollContainer
+    if (scrollContainer && scrollContainer.current) {
+      scrollContainer.current.addEventListener("scroll", handleScroll);
+    } else {
+      window.addEventListener("scroll", handleScroll);
+    }
+    
     window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      if (scrollContainer && scrollContainer.current) {
+        scrollContainer.current.removeEventListener("scroll", handleScroll);
+      } else {
+        window.removeEventListener("scroll", handleScroll);
+      }
       window.removeEventListener("resize", handleResize);
     };
   }, [scrollContainer]);
 
   return (
-    <Canvas className={`w-full h-screen bg-transparent z-10`} camera={{ near: 0.1, far: 1000 }}>
+    <Canvas className="w-full h-screen bg-transparent z-10" camera={{ near: 0.1, far: 1000 }}>
       <Suspense fallback={<CanvasLoader />}>
         <directionalLight position={[1, 1, 1]} intensity={2} />
         <ambientLight intensity={0.5} />
@@ -73,7 +101,12 @@ const SpacemanCanvas = ({ scrollContainer }) => {
         <spotLight position={[0, 50, 10]} angle={0.15} penumbra={1} intensity={2} />
         <hemisphereLight skyColor="#b1e1ff" groundColor="#000000" intensity={1} />
 
-        <Spaceman rotationX={rotationX} rotationY={rotationY} scale={scale} position={position} />
+        <Spaceman 
+          rotationX={rotationX} 
+          rotationY={rotationY} 
+          scale={scale} 
+          position={position} 
+        />
       </Suspense>
     </Canvas>
   );

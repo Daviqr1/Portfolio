@@ -2,6 +2,9 @@ import { Html, useProgress } from "@react-three/drei";
 
 const CanvasLoader = () => {
   const { progress } = useProgress();
+  // Remova ou renomeie a variável se não for necessária
+  // const loaderConfig = { type: 'file' };
+
   return (
     <Html
       as='div'

@@ -1,110 +1,163 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { close, menu } from "../assets";
-import { navLinks } from "../data";
+import React, { useState, useEffect } from 'react';
+import { Terminal, Globe } from 'lucide-react';
+import { Link } from 'react-scroll';
 
-const Navbar = () => {
-  const [active, setActive] = useState("hero");
+const Navbar = ({ active, setActive, openTerminal, language, setLanguage }) => {
   const [toggle, setToggle] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [langMenu, setLangMenu] = useState(false);
+
+  const languages = [
+    { code: 'pt-BR', label: '🇧🇷 Português' },
+    { code: 'en-US', label: '🇺🇸 English' },
+    { code: 'zh-CN', label: '🇨🇳 中文' }
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setScrolled(scrollTop > 100);
+      if (scrollTop > 100) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const sections = document.querySelectorAll("div[id]");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActive(entry.target.id);
-          }
-        });
-      },
-      {
-        threshold: 0.2,
-        rootMargin: '0px 0px -50% 0px'
-      }
-    );
-
-    sections.forEach((section) => observer.observe(section));
-
-    return () => sections.forEach((section) => observer.unobserve(section));
-  }, []);
+  const navItems = [
+    { id: 'home', label: language === 'pt-BR' ? 'Início' : language === 'zh-CN' ? '首页' : 'Home' },
+    { id: 'about', label: language === 'pt-BR' ? 'Sobre' : language === 'zh-CN' ? '关于' : 'About' },
+    { id: 'projetos', label: language === 'pt-BR' ? 'Projetos' : language === 'zh-CN' ? '项目' : 'Projects' },
+    { id: 'experiência', label: language === 'pt-BR' ? 'Experiência' : language === 'zh-CN' ? '经验' : 'Experience' },
+    { id: 'roadmap', label: language === 'pt-BR' ? 'Trajetória' : language === 'zh-CN' ? '路线图' : 'Roadmap' },
+    { id: 'contato', label: language === 'pt-BR' ? 'Contato' : language === 'zh-CN' ? '联系' : 'Contact' }
+  ];
 
   return (
-    <nav
-      className="w-full flex items-center bg-gradient-to-b from-black sm:bg-none p-8 sm:px-16 sm:py-10 fixed z-40 pointer-events-none"
-    >
-      <div className='w-full flex justify-between items-start mx-auto'>
-        <Link
-          to='/'
-          className='flex items-start'
-          onClick={() => {
-            setActive("hero");
-            window.scrollTo(0, 0);
-          }}
-        >
-          <p className='text-white text-[26px] lg:text-[36px] font-bold pointer-events-auto cursor-pointer flex'>
-            DR
-          </p>
-        </Link>
-
-        <ul className='list-none hidden sm:flex flex-col gap-5'>
-          {navLinks.map((nav) => (
-            <li
-              key={nav.id}
-              className={`relative flex items-center ${
-                active === nav.id ? "text-white" : "text-slate-500"
-              } hover:text-white text-[18px] lg:text-[24px] font-bold pointer-events-auto cursor-pointer`}
-              onClick={() => setActive(nav.id)}
-            >
-              {active === nav.id && (
-                <div className="fixed right-10 w-2 h-6 lg:h-8 bg-quaternary"></div>
-              )}
-              <a href={`#${nav.id}`}>{nav.title}</a>
-            </li>
-          ))}
-        </ul>
-
-        <div className='sm:hidden flex flex-1 justify-end items-center'>
-          <img
-            src={toggle ? close : menu}
-            alt='menu'
-            className='w-[28px] h-[28px] object-contain pointer-events-auto cursor-pointer'
-            onClick={() => setToggle(!toggle)}
-          />
-
-          <div
-            className={`${
-              !toggle ? "hidden" : "flex"
-            } p-6 absolute top-20 right-0 mx-4 my-2 min-w-[140px] z-30 rounded-xl`}
+    <nav className={`fixed top-0 w-full z-40 transition-all duration-300 ${
+      scrolled ? "bg-gray-900/80 backdrop-blur-sm py-2" : "py-4"
+    }`}>
+      <div className="container mx-auto px-6">
+        <div className="flex items-center justify-between">
+          <div 
+            className="text-2xl font-bold cursor-pointer group"
+            onClick={openTerminal}
           >
-            <ul className='list-none flex justify-end items-start flex-1 flex-col gap-4'>
-              {navLinks.map((nav) => (
-                <li
-                  key={nav.id}
-                  className={`font-poppins font-medium cursor-pointer text-[16px] ${
-                    active === nav.id ? "text-quaternary" : "text-secondary"
-                  }`}
-                  onClick={() => {
-                    setToggle(!toggle);
-                    setActive(nav.id);
-                  }}
-                >
-                  <a href={`#${nav.id}`}>{nav.title}</a>
-                </li>
-              ))}
-            </ul>
+            <Terminal className="inline-block mr-2 group-hover:text-emerald-400 transition-colors" />
+            <span className="group-hover:text-emerald-400 transition-colors">Davi Rezende</span>
+          </div>
+          
+          <div className="hidden md:flex space-x-6 items-center">
+            {navItems.map(item => (
+              <Link
+                key={item.id}
+                to={item.id}
+                spy={true}
+                smooth={true}
+                offset={-80}
+                duration={500}
+                onClick={() => setActive(item.id)}
+                className={`capitalize cursor-pointer ${
+                  active === item.id
+                    ? 'text-emerald-400'
+                    : 'text-gray-300 hover:text-white'
+                } transition-colors`}
+              >
+                {item.label}
+              </Link>
+            ))}
+            
+            {/* Language selector */}
+            <div className="relative ml-6">
+              <button
+                onClick={() => setLangMenu(!langMenu)}
+                className="flex items-center bg-gray-800 p-2 rounded-lg border border-emerald-500/20 hover:border-emerald-500/50 transition-colors"
+              >
+                <Globe className="w-5 h-5 mr-2 text-emerald-400" />
+                <span className="text-sm">
+                  {language === 'pt-BR' ? '🇧🇷' : language === 'zh-CN' ? '🇨🇳' : '🇺🇸'}
+                </span>
+              </button>
+              
+              {langMenu && (
+                <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded-lg shadow-lg py-1 border border-emerald-500/20 z-50">
+                  {languages.map(lang => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setLangMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center"
+                    >
+                      <span className={`${language === lang.code ? 'text-emerald-400' : 'text-gray-300'}`}>
+                        {lang.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="md:hidden">
+            <button
+              className="text-white focus:outline-none"
+              onClick={() => setToggle(!toggle)}
+            >
+              {toggle ? "✕" : "☰"}
+            </button>
           </div>
         </div>
+        
+        {toggle && (
+          <div className="mt-4 md:hidden">
+            {navItems.map(item => (
+              <Link
+                key={item.id}
+                to={item.id}
+                spy={true}
+                smooth={true}
+                offset={-80}
+                duration={500}
+                onClick={() => {
+                  setActive(item.id);
+                  setToggle(false);
+                }}
+                className={`block w-full text-left py-2 capitalize ${
+                  active === item.id
+                    ? 'text-emerald-400'
+                    : 'text-gray-300 hover:text-white'
+                } transition-colors`}
+              >
+                {item.label}
+              </Link>
+            ))}
+            <div className="py-2 mt-2 border-t border-gray-700">
+              <div className="flex flex-wrap gap-2 mt-2">
+                {languages.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setToggle(false);
+                    }}
+                    className={`px-3 py-2 rounded ${
+                      language === lang.code 
+                        ? 'bg-emerald-500/20 text-emerald-400' 
+                        : 'bg-gray-800 text-gray-300'
+                    }`}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

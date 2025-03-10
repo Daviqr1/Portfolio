@@ -1,28 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const produceSpans = (text, animation) => {
-  return text.split("").map((letter, index) => (
-    <span
-      key={index}
-      className={`inline-block transform-style-3d origin-bottom ${animation}`}
-      style={{ animationDelay: `${index * 0.05}s` }}
-    >
-      {letter === " " ? "\u00A0" : letter}
+  return text.split('').map((letter, index) => (
+    <span key={index} className={animation}>
+      {letter}
     </span>
   ));
 };
 
-const Position = () => {
+const Position = ({ language }) => {
+  const [animationIndex, setAnimationIndex] = useState(0);
+  
+  const positions = {
+    'pt-BR': [
+      "Desenvolvedor FullStack",
+      "Especialista em Backend",
+      "Engenheiro de Software",
+      "Solucionador de problemas"
+    ],
+    'en-US': [
+      "FullStack Developer",
+      "Backend Specialist",
+      "Software Engineer",
+      "Problem Solver"
+    ],
+    'zh-CN': [
+      "全栈开发者",
+      "后端专家",
+      "软件工程师",
+      "问题解决者"
+    ]
+  };
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnimationIndex((prev) => 
+        prev === positions[language].length - 1 ? 0 : prev + 1
+      );
+    }, 3000);
+    
+    return () => clearInterval(timer);
+  }, [language]);
+  
   return (
-    <div className="relative cursor-default font-medium text-white text-[16px] xs:text-[20px] sm:text-[30px] md:text-[36px] 2xl:text-[66px] leading-[32px] 2xl:leading-[40px] w-full flex justify-center items-center">
-      <div className="absolute inset-0 top-[-30px] sm:top-[-10px] lg:top-0 flex flex-col">
-        <div className="text first absolute left-1 md:left-2 2xl:left-4 flex" aria-label="Software Developer">
-          {produceSpans("Software Developer", "animate-textRotate1")}
-        </div>
-        <div className="text second absolute left-1 md:left-2 2xl:left-4 flex" aria-label="Content Creator">
-          {produceSpans("Content Creator", "animate-textRotate2")}
-        </div>
-      </div>
+    <div className="relative h-[32px] sm:h-[40px] overflow-hidden my-2">
+      {positions[language].map((position, index) => (
+        <p 
+          key={index}
+          className={`absolute left-0 m-0 text-[16px] sm:text-[20px] font-normal text-gray-300 transition-transform duration-500 ${
+            index === animationIndex ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+          }`}
+        >
+          {position}
+        </p>
+      ))}
     </div>
   );
 };

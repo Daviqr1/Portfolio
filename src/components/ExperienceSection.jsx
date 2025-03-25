@@ -20,43 +20,150 @@ const ExperienceSection = ({ language = 'pt-BR' }) => {
     "FAPES": ["PHP", "jQuery", "MySQL", "Bootstrap"]
   };
 
+  const getTranslation = (key) => {
+    const translations = {
+      // Organização Emflora
+      "emflora_description": {
+        'pt-BR': "Trabalho desenvolvimento de soluções tecnológicas inovadoras e automações para a indústria de agricultura de precisão.",
+        'en-US': "Developing innovative technological solutions and automations for the precision agriculture industry.",
+        'zh-CN': "为精准农业行业开发创新技术解决方案和自动化系统。"
+      },
+      "emflora_achievement1": {
+        'pt-BR': "Implementação de sistema IoT para monitoramento de cultivos",
+        'en-US': "Implementation of IoT system for crop monitoring",
+        'zh-CN': "实施物联网系统用于作物监控"
+      },
+      "emflora_achievement2": {
+        'pt-BR': "Coleta de dados para uso de machine learning",
+        'en-US': "Data collection for machine learning applications",
+        'zh-CN': "收集机器学习应用的数据"
+      },
+      "emflora_achievement3": {
+        'pt-BR': "Arquitetura de microsserviços escalável",
+        'en-US': "Scalable microservices architecture",
+        'zh-CN': "可扩展的微服务架构"
+      },
+      "emflora_achievement4": {
+        'pt-BR': "Desenvolvimento de aplicativo mobile para Telemetria",
+        'en-US': "Development of mobile app for Telemetry",
+        'zh-CN': "开发用于遥测的移动应用程序"
+      },
+      
+      // BButton Ventures
+      "bbutton_description": {
+        'pt-BR': "Colaboração com o Programa de desenvolvimento de Statups.",
+        'en-US': "Collaboration with the Startup Development Program.",
+        'zh-CN': "与创业公司发展计划合作。"
+      },
+      "bbutton_achievement1": {
+        'pt-BR': "Networking com investidores e aceleradoras",
+        'en-US': "Networking with investors and accelerators",
+        'zh-CN': "与投资者和加速器建立联系"
+      },
+      "bbutton_achievement2": {
+        'pt-BR': "Primeira oportunidade Profissional",
+        'en-US': "First Professional opportunity",
+        'zh-CN': "第一次专业机会"
+      },
+      "bbutton_achievement3": {
+        'pt-BR': "Mentoria técnica para startups do portfólio",
+        'en-US': "Technical mentoring for portfolio startups",
+        'zh-CN': "为投资组合初创企业提供技术指导"
+      },
+      
+      // FAPES
+      "fapes_description": {
+        'pt-BR': "Criação De um guia de empresas para empreendedores locais e turistas.",
+        'en-US': "Creation of a business directory for local entrepreneurs and tourists.",
+        'zh-CN': "为当地企业家和游客创建企业目录。"
+      },
+      "fapes_achievement1": {
+        'pt-BR': "Desenvolvimento de sistema de busca avançada",
+        'en-US': "Development of advanced search system",
+        'zh-CN': "开发高级搜索系统"
+      },
+      "fapes_achievement2": {
+        'pt-BR': "Integração com APIs de geocodificação",
+        'en-US': "Integration with geocoding APIs",
+        'zh-CN': "与地理编码API集成"
+      },
+      "fapes_achievement3": {
+        'pt-BR': "Integração com APIs externas",
+        'en-US': "Integration with external APIs",
+        'zh-CN': "与外部API集成"
+      },
+      
+      // Roles
+      "role_emflora": {
+        'pt-BR': "Analista de Automação e Desenvolvedor Mobile",
+        'en-US': "Automation Analyst and Mobile Developer",
+        'zh-CN': "自动化分析师和移动开发人员"
+      },
+      "role_bbutton": {
+        'pt-BR': "Analista de Startups",
+        'en-US': "Startup Analyst",
+        'zh-CN': "创业公司分析师"
+      },
+      "role_fapes": {
+        'pt-BR': "Desenvolvedor Web",
+        'en-US': "Web Developer",
+        'zh-CN': "网页开发员"
+      },
+      
+      // Durations
+      "currently": {
+        'pt-BR': "atualmente",
+        'en-US': "currently",
+        'zh-CN': "目前"
+      },
+      "one_year": {
+        'pt-BR': "1 ano",
+        'en-US': "1 year",
+        'zh-CN': "1年"
+      }
+    };
+    
+    return translations[key]?.[language] || translations[key]?.['en-US'] || key;
+  };
+
   const experiences = [
     {
       company: "Organização Emflora",
-      role: "Desenvolvedor Full Stack",
-      period: "2023 - Atual",
-      duration: "1 ano+",
-      description: "Liderando o desenvolvimento de soluções tecnológicas inovadoras para agricultura de precisão.",
+      role: getTranslation("role_emflora"),
+      period: "2024 - 2025",
+      duration: getTranslation("currently"),
+      description: getTranslation("emflora_description"),
       achievements: [
-        "Implementação de sistema IoT para monitoramento de cultivos",
-        "Redução de 30% em custos operacionais",
-        "Arquitetura de microsserviços escalável"
+        getTranslation("emflora_achievement1"),
+        getTranslation("emflora_achievement2"),
+        getTranslation("emflora_achievement3"),
+        getTranslation("emflora_achievement4")
       ],
       color: "from-green-500 to-emerald-500"
     },
     {
       company: "BButton Ventures",
-      role: "Desenvolvedor Backend",
-      period: "2022 - 2023",
-      duration: "1 ano",
-      description: "Desenvolvimento de infraestrutura para startups em estágio inicial.",
+      role: getTranslation("role_bbutton"),
+      period: "2022 - 2022",
+      duration: "NaN",
+      description: getTranslation("bbutton_description"),
       achievements: [
-        "Pipeline de automação para análise de startups",
-        "APIs RESTful para integração de serviços",
-        "Mentoria técnica para startups do portfólio"
+        getTranslation("bbutton_achievement1"),
+        getTranslation("bbutton_achievement2"),
+        getTranslation("bbutton_achievement3")
       ],
       color: "from-blue-500 to-indigo-500"
     },
     {
       company: "FAPES",
-      role: "Desenvolvedor Web PHP",
-      period: "2021 - 2022",
-      duration: "1 ano",
-      description: "Modernização de sistemas para gestão de projetos de pesquisa.",
+      role: getTranslation("role_fapes"),
+      period: "2022 - 2023",
+      duration: getTranslation("one_year"),
+      description: getTranslation("fapes_description"),
       achievements: [
-        "Refatoração completa do sistema legado",
-        "Implementação de workflow automatizado",
-        "Redução de 50% no tempo de aprovação de projetos"
+        getTranslation("fapes_achievement1"),
+        getTranslation("fapes_achievement2"),
+        getTranslation("fapes_achievement3")
       ],
       color: "from-amber-500 to-orange-500"
     }

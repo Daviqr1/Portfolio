@@ -31,19 +31,34 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     };
   }, []);
 
+  // Helper function para obter texto traduzido
+  const getLocalizedText = (ptText, enText, zhText) => {
+    if (language === 'pt-BR') return ptText;
+    if (language === 'zh-CN') return zhText;
+    return enText; // default to English
+  };
+
   const journey = [
     {
       id: "education",
       year: "2017-2021",
-      title: language === 'pt-BR' ? "Engenharia UFES" : "UFES Engineering",
+      title: getLocalizedText("Engenharia UFES", "UFES Engineering", "UFES 工程学"),
       icon: <GraduationCap size={28} />,
-      description: language === 'pt-BR' 
-        ? "Formação em Engenharia na Universidade Federal do Espírito Santo, onde tive meu primeiro contato formal com programação e desenvolvimento de software."
-        : "Engineering degree at Federal University of Espírito Santo, where I had my first formal contact with programming and software development.",
+      description: getLocalizedText(
+        "Formação em Engenharia na Universidade Federal do Espírito Santo, onde tive meu primeiro contato formal com programação e desenvolvimento de software.",
+        "Engineering degree at Federal University of Espírito Santo, where I had my first formal contact with programming and software development.",
+        "在埃斯皮里托桑托联邦大学获得工程学学位，在那里我首次正式接触编程和软件开发。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Curso" : "Course", value: language === 'pt-BR' ? "Engenharia" : "Engineering" },
-        { label: language === 'pt-BR' ? "Instituição" : "Institution", value: "UFES" },
-        { label: language === 'pt-BR' ? "Conhecimentos" : "Knowledge", value: "C++, Java, Algoritmos" }
+        { 
+          label: getLocalizedText("Curso", "Course", "课程"), 
+          value: getLocalizedText("Engenharia", "Engineering", "工程学") 
+        },
+        { label: getLocalizedText("Instituição", "Institution", "机构"), value: "UFES" },
+        { 
+          label: getLocalizedText("Conhecimentos", "Knowledge", "知识"), 
+          value: "C++, Java, Algoritmos" 
+        }
       ],
       color: "from-blue-500 to-indigo-600",
       borderColor: "border-blue-500",
@@ -53,16 +68,24 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     },
     {
       id: "first-job",
-      year: "2021",
-      title: language === 'pt-BR' ? "Primeiro Trabalho na FAPES" : "First Job at FAPES",
+      year: "2022",
+      title: getLocalizedText("Primeiro Trabalho na FAPES", "First Job at FAPES", "FAPES 的第一份工作"),
       icon: <Briefcase size={28} />,
-      description: language === 'pt-BR'
-        ? "Minha entrada no mercado como desenvolvedor web PHP na FAPES, trabalhando com sistemas legados e implementando melhorias significativas."
-        : "My entry into the market as a PHP web developer at FAPES, working with legacy systems and implementing significant improvements.",
+      description: getLocalizedText(
+        "Minha entrada no mercado como desenvolvedor web PHP na FAPES, tabalhando como desenvolvedor web significativas.",
+        "My entry into the market as a PHP web developer at FAPES, working with legacy systems and implementing significant improvements.",
+        "作为PHP网站开发者在FAPES进入市场，负责处理遗留系统并实施重要改进。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Empresa" : "Company", value: "FAPES" },
-        { label: language === 'pt-BR' ? "Tecnologias" : "Technologies", value: "PHP, jQuery, MySQL" },
-        { label: language === 'pt-BR' ? "Conquista" : "Achievement", value: language === 'pt-BR' ? "Modernização de sistemas legados" : "Legacy system modernization" }
+        { label: getLocalizedText("Empresa", "Company", "公司"), value: "FAPES" },
+        { 
+          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
+          value: "PHP, jQuery, MySQL" 
+        },
+        { 
+          label: getLocalizedText("Conquista", "Achievement", "成就"), 
+          value: getLocalizedText("Modernização de sistemas legados", "Legacy system modernization", "遗留系统现代化") 
+        }
       ],
       color: "from-amber-500 to-orange-600",
       borderColor: "border-amber-500",
@@ -73,15 +96,23 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     {
       id: "certifications",
       year: "2022",
-      title: language === 'pt-BR' ? "Certificações & Backend" : "Certifications & Backend",
+      title: getLocalizedText("Certificações & Backend", "Certifications & Backend", "认证与后端开发"),
       icon: <Award size={28} />,
-      description: language === 'pt-BR'
-        ? "Período de intenso aprendizado onde conquistei certificações importantes em desenvolvimento backend e trabalhei com arquiteturas escaláveis na BButton."
-        : "Period of intense learning where I earned important backend development certifications and worked with scalable architectures at BButton.",
+      description: getLocalizedText(
+        "Período de intenso aprendizado onde conquistei certificações importantes em desenvolvimento backend e todas as certificações de engenheriro de software e principais linguagens no hackerhank.com.",
+        "Period of intense learning where I earned important backend development certifications and worked with scalable architectures at BButton.",
+        "在BButton学习的高强度阶段，获得重要的后端开发认证并使用可扩展架构工作。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Certificações" : "Certifications", value: "AWS, Docker, Laravel" },
-        { label: language === 'pt-BR' ? "Empresa" : "Company", value: "BButton Ventures" },
-        { label: language === 'pt-BR' ? "Projetos" : "Projects", value: language === 'pt-BR' ? "APIs e Microsserviços" : "APIs and Microservices" }
+        { 
+          label: getLocalizedText("Certificações", "Certifications", "认证"), 
+          value: "AWS, Docker, Laravel" 
+        },
+        { label: getLocalizedText("Empresa", "Company", "公司"), value: "BButton Ventures" },
+        { 
+          label: getLocalizedText("Projetos", "Projects", "项目"), 
+          value: getLocalizedText("APIs e Microsserviços", "APIs and Microservices", "API和微服务") 
+        }
       ],
       color: "from-purple-500 to-violet-600",
       borderColor: "border-purple-500",
@@ -91,16 +122,24 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     },
     {
       id: "freelance",
-      year: "2022-2023",
-      title: language === 'pt-BR' ? "Era Freelancer" : "Freelance Era",
+      year: "2022-2024",
+      title: getLocalizedText("Era Freelancer", "Freelance Era", "自由职业时期"),
       icon: <Globe size={28} />,
-      description: language === 'pt-BR'
-        ? "Explorei o mundo dos projetos freelance, desenvolvendo soluções personalizadas para diversos clientes e adquirindo experiência em múltiplas frentes."
-        : "Explored the world of freelance projects, developing custom solutions for various clients and gaining experience on multiple fronts.",
+      description: getLocalizedText(
+        "Explorei o mundo dos projetos freelance, desenvolvendo soluções personalizadas para diversos clientes e adquirindo experiência em múltiplas frentes.",
+        "Explored the world of freelance projects, developing custom solutions for various clients and gaining experience on multiple fronts.",
+        "探索自由职业项目的世界，为各种客户开发定制解决方案，在多个方面获得经验。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Projetos" : "Projects", value: "15+" },
-        { label: language === 'pt-BR' ? "Clientes" : "Clients", value: language === 'pt-BR' ? "Pequenas e médias empresas" : "Small and medium businesses" },
-        { label: language === 'pt-BR' ? "Tecnologias" : "Technologies", value: "React, Node.js, PHP" }
+        { label: getLocalizedText("Projetos", "Projects", "项目"), value: "15+" },
+        { 
+          label: getLocalizedText("Clientes", "Clients", "客户"), 
+          value: getLocalizedText("Pequenas e médias empresas", "Small and medium businesses", "中小型企业") 
+        },
+        { 
+          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
+          value: "React, Node.js, PHP" 
+        }
       ],
       color: "from-green-500 to-emerald-600",
       borderColor: "border-green-500",
@@ -110,16 +149,21 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     },
     {
       id: "saas",
-      year: "2023",
-      title: language === 'pt-BR' ? "Sociedade em SaaS" : "SaaS Partnership",
+      year: "2024",
+      title: getLocalizedText("Sociedade em SaaS", "SaaS Partnership", "SaaS合作伙伴关系"),
       icon: <Server size={28} />,
-      description: language === 'pt-BR'
-        ? "Formei sociedade para desenvolvimento de soluções SaaS, criando produtos escaláveis e ganhando experiência em gestão de produto e negócios."
-        : "Formed partnerships for SaaS solutions development, creating scalable products and gaining experience in product and business management.",
+      description: getLocalizedText(
+        "Formei sociedade para desenvolvimento de soluções SaaS, criando produtos escaláveis e ganhando experiência em gestão de produto e negócios.",
+        "Formed partnerships for SaaS solutions development, creating scalable products and gaining experience in product and business management.",
+        "建立SaaS解决方案开发合作伙伴关系，创建可扩展产品并获得产品和业务管理经验。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Modelo" : "Model", value: "SaaS" },
-        { label: language === 'pt-BR' ? "Stack" : "Stack", value: "LAMP, React, AWS" },
-        { label: language === 'pt-BR' ? "Foco" : "Focus", value: language === 'pt-BR' ? "Soluções B2B" : "B2B Solutions" }
+        { label: getLocalizedText("Modelo", "Model", "模式"), value: "SaaS" },
+        { label: getLocalizedText("Stack", "Stack", "技术栈"), value: "LAMP, React, AWS" },
+        { 
+          label: getLocalizedText("Foco", "Focus", "重点"), 
+          value: getLocalizedText("Soluções B2B", "B2B Solutions", "B2B解决方案") 
+        }
       ],
       color: "from-cyan-500 to-blue-600",
       borderColor: "border-cyan-500",
@@ -129,16 +173,21 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     },
     {
       id: "mobile-dev",
-      year: "2023-2024",
-      title: language === 'pt-BR' ? "Desenvolvimento Mobile" : "Mobile Development",
+      year: "2024-2025",
+      title: getLocalizedText("Desenvolvimento Mobile", "Mobile Development", "移动应用开发"),
       icon: <Laptop size={28} />,
-      description: language === 'pt-BR'
-        ? "Transição para desenvolvimento mobile com foco em React Native, criando aplicativos para diversas plataformas e integrando com APIs backend."
-        : "Transition to mobile development focusing on React Native, creating applications for various platforms and integrating with backend APIs.",
+      description: getLocalizedText(
+        "Transição para desenvolvimento mobile com foco em React Native, criando aplicativos para diversas plataformas e integrando com APIs backend.",
+        "Transition to mobile development focusing on React Native, creating applications for various platforms and integrating with backend APIs.",
+        "转向专注于React Native的移动开发，为各种平台创建应用程序并与后端API集成。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Plataformas" : "Platforms", value: "iOS, Android" },
-        { label: language === 'pt-BR' ? "Framework" : "Framework", value: "React Native" },
-        { label: language === 'pt-BR' ? "Projetos" : "Projects", value: language === 'pt-BR' ? "Aplicativos corporativos e de consumo" : "Corporate and consumer apps" }
+        { label: getLocalizedText("Plataformas", "Platforms", "平台"), value: "iOS, Android" },
+        { label: getLocalizedText("Framework", "Framework", "框架"), value: "React Native" },
+        { 
+          label: getLocalizedText("Projetos", "Projects", "项目"), 
+          value: getLocalizedText("Aplicativos corporativos e de consumo", "Corporate and consumer apps", "企业和消费者应用") 
+        }
       ],
       color: "from-rose-500 to-pink-600",
       borderColor: "border-rose-500",
@@ -148,16 +197,24 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     },
     {
       id: "iot-projects",
-      year: "2024",
-      title: language === 'pt-BR' ? "Soluções IoT & Emflora" : "IoT Solutions & Emflora",
+      year: "2024-2025",
+      title: getLocalizedText("Soluções IoT & Emflora", "IoT Solutions & Emflora", "物联网解决方案与Emflora"),
       icon: <Cpu size={28} />,
-      description: language === 'pt-BR'
-        ? "Liderança no desenvolvimento de soluções tecnológicas para agricultura de precisão na Emflora, combinando IoT, mobile e backend."
-        : "Leading the development of technological solutions for precision agriculture at Emflora, combining IoT, mobile and backend.",
+      description: getLocalizedText(
+        "Liderança no desenvolvimento de soluções tecnológicas para agricultura de precisão na Emflora, combinando IoT, mobile e backend.",
+        "Leading the development of technological solutions for precision agriculture at Emflora, combining IoT, mobile and backend.",
+        "在Emflora领导精准农业技术解决方案的开发，结合物联网、移动和后端技术。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Empresa" : "Company", value: "Organização Emflora" },
-        { label: language === 'pt-BR' ? "Tecnologias" : "Technologies", value: "ESP32, React Native, Node.js" },
-        { label: language === 'pt-BR' ? "Impacto" : "Impact", value: language === 'pt-BR' ? "Redução de 30% em custos operacionais" : "30% reduction in operational costs" }
+        { label: getLocalizedText("Empresa", "Company", "公司"), value: "Organização Emflora" },
+        { 
+          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
+          value: "ESP32, React Native, Node.js" 
+        },
+        { 
+          label: getLocalizedText("Impacto", "Impact", "影响"), 
+          value: getLocalizedText("Redução de 30% em custos operacionais", "30% reduction in operational costs", "运营成本降低30%") 
+        }
       ],
       color: "from-emerald-500 to-green-600",
       borderColor: "border-emerald-500",
@@ -168,15 +225,26 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     {
       id: "future",
       year: "2025+",
-      title: language === 'pt-BR' ? "Próximos Passos" : "Next Steps",
+      title: getLocalizedText("Próximos Passos", "Next Steps", "下一步"),
       icon: <Rocket size={28} />,
-      description: language === 'pt-BR'
-        ? "Busca por oportunidades internacionais e desenvolvimento de habilidades em IA e sistemas distribuídos, com foco em criar impacto global."
-        : "Seeking international opportunities and developing skills in AI and distributed systems, focusing on creating global impact.",
+      description: getLocalizedText(
+        "Busca por oportunidades internacionais e desenvolvimento de habilidades em IA e sistemas distribuídos, com foco em criar impacto global.",
+        "Seeking international opportunities and developing skills in AI and distributed systems, focusing on creating global impact.",
+        "寻求国际机会并发展人工智能和分布式系统技能，专注于创造全球影响力。"
+      ),
       details: [
-        { label: language === 'pt-BR' ? "Objetivos" : "Goals", value: language === 'pt-BR' ? "Relocalização internacional" : "International relocation" },
-        { label: language === 'pt-BR' ? "Aprendizado" : "Learning", value: "AI/ML, Cloud Native" },
-        { label: language === 'pt-BR' ? "Visão" : "Vision", value: language === 'pt-BR' ? "Criar soluções de impacto global" : "Create solutions with global impact" }
+        { 
+          label: getLocalizedText("Objetivos", "Goals", "目标"), 
+          value: getLocalizedText("Relocalização internacional", "International relocation", "国际重新定位") 
+        },
+        { 
+          label: getLocalizedText("Aprendizado", "Learning", "学习"), 
+          value: "AI/ML, Cloud Native" 
+        },
+        { 
+          label: getLocalizedText("Visão", "Vision", "愿景"), 
+          value: getLocalizedText("Criar soluções de impacto global", "Create solutions with global impact", "创造具有全球影响力的解决方案") 
+        }
       ],
       color: "from-indigo-500 to-purple-600",
       borderColor: "border-indigo-500",
@@ -221,7 +289,7 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl sm:text-5xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500 mb-6"
           >
-            {language === 'pt-BR' ? 'Minha Jornada Tecnológica' : 'My Tech Journey'}
+            {language === 'pt-BR' ? 'Minha Jornada na Tecnologia' : 'My Tech Journey'}
           </motion.h2>
           
           <motion.div 

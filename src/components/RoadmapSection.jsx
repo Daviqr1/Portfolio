@@ -523,21 +523,21 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
                 </defs>
                 
                 <motion.path 
-                  d={`M ${journey[0].position.x} ${journey[0].position.y} 
-                      Q ${parseInt(journey[1].position.x) - 5}% ${parseInt(journey[0].position.y) + 10}%, 
-                        ${journey[1].position.x} ${journey[1].position.y}
-                      Q ${parseInt(journey[2].position.x) - 10}% ${parseInt(journey[1].position.y) + 15}%,
-                        ${journey[2].position.x} ${journey[2].position.y}
-                      Q ${parseInt(journey[2].position.x) + 5}% ${parseInt(journey[3].position.y) - 15}%,
-                        ${journey[3].position.x} ${journey[3].position.y}
-                      Q ${parseInt(journey[4].position.x) - 10}% ${parseInt(journey[3].position.y) + 5}%,
-                        ${journey[4].position.x} ${journey[4].position.y}
-                      Q ${parseInt(journey[5].position.x) - 15}% ${parseInt(journey[4].position.y) + 10}%,
-                        ${journey[5].position.x} ${journey[5].position.y}
-                      Q ${parseInt(journey[6].position.x) + 5}% ${parseInt(journey[5].position.y) + 15}%,
-                        ${journey[6].position.x} ${journey[6].position.y}
-                      Q ${parseInt(journey[7].position.x) - 5}% ${parseInt(journey[6].position.y) + 10}%,
-                        ${journey[7].position.x} ${journey[7].position.y}`}
+                  d={`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
+                      Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
+                        ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
+                      Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
+                        ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
+                      Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
+                        ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
+                      Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
+                        ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
+                      Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
+                        ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
+                      Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
+                        ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
+                      Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
+                        ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}`}
                   fill="none"
                   strokeWidth="2"
                   stroke="url(#roadmap-line-gradient)"
@@ -558,21 +558,21 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
                     opacity: [0.8, 0.2, 0.8],
                     offsetDistance: ["0%", "100%"]
                   }}
-                  style={{ offsetPath: `path('${`M ${journey[0].position.x} ${journey[0].position.y} 
-                                          Q ${parseInt(journey[1].position.x) - 5}% ${parseInt(journey[0].position.y) + 10}%, 
-                                          ${journey[1].position.x} ${journey[1].position.y}
-                                          Q ${parseInt(journey[2].position.x) - 10}% ${parseInt(journey[1].position.y) + 15}%,
-                                          ${journey[2].position.x} ${journey[2].position.y}
-                                          Q ${parseInt(journey[2].position.x) + 5}% ${parseInt(journey[3].position.y) - 15}%,
-                                          ${journey[3].position.x} ${journey[3].position.y}
-                                          Q ${parseInt(journey[4].position.x) - 10}% ${parseInt(journey[3].position.y) + 5}%,
-                                          ${journey[4].position.x} ${journey[4].position.y}
-                                          Q ${parseInt(journey[5].position.x) - 15}% ${parseInt(journey[4].position.y) + 10}%,
-                                          ${journey[5].position.x} ${journey[5].position.y}
-                                          Q ${parseInt(journey[6].position.x) + 5}% ${parseInt(journey[5].position.y) + 15}%,
-                                          ${journey[6].position.x} ${journey[6].position.y}
-                                          Q ${parseInt(journey[7].position.x) - 5}% ${parseInt(journey[6].position.y) + 10}%,
-                                          ${journey[7].position.x} ${journey[7].position.y}`}')` }}
+                  style={{ offsetPath: `path('${`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
+                                          Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
+                                          ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
+                                          Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
+                                          ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
+                                          Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
+                                          ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
+                                          Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
+                                          ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
+                                          Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
+                                          ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
+                                          Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
+                                          ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
+                                          Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
+                                          ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}')` }}
                   transition={{ 
                     duration: 15, 
                     repeat: Infinity,
@@ -588,21 +588,21 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
                     opacity: [0.7, 0.3, 0.7],
                     offsetDistance: ["25%", "75%", "25%"]
                   }}
-                  style={{ offsetPath: `path('${`M ${journey[0].position.x} ${journey[0].position.y} 
-                                          Q ${parseInt(journey[1].position.x) - 5}% ${parseInt(journey[0].position.y) + 10}%, 
-                                          ${journey[1].position.x} ${journey[1].position.y}
-                                          Q ${parseInt(journey[2].position.x) - 10}% ${parseInt(journey[1].position.y) + 15}%,
-                                          ${journey[2].position.x} ${journey[2].position.y}
-                                          Q ${parseInt(journey[2].position.x) + 5}% ${parseInt(journey[3].position.y) - 15}%,
-                                          ${journey[3].position.x} ${journey[3].position.y}
-                                          Q ${parseInt(journey[4].position.x) - 10}% ${parseInt(journey[3].position.y) + 5}%,
-                                          ${journey[4].position.x} ${journey[4].position.y}
-                                          Q ${parseInt(journey[5].position.x) - 15}% ${parseInt(journey[4].position.y) + 10}%,
-                                          ${journey[5].position.x} ${journey[5].position.y}
-                                          Q ${parseInt(journey[6].position.x) + 5}% ${parseInt(journey[5].position.y) + 15}%,
-                                          ${journey[6].position.x} ${journey[6].position.y}
-                                          Q ${parseInt(journey[7].position.x) - 5}% ${parseInt(journey[6].position.y) + 10}%,
-                                          ${journey[7].position.x} ${journey[7].position.y}`}')` }}
+                  style={{ offsetPath: `path('${`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
+                                          Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
+                                          ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
+                                          Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
+                                          ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
+                                          Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
+                                          ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
+                                          Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
+                                          ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
+                                          Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
+                                          ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
+                                          Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
+                                          ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
+                                          Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
+                                          ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}')` }}
                   transition={{ 
                     duration: 18, 
                     repeat: Infinity,

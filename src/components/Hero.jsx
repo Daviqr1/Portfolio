@@ -29,15 +29,15 @@ const Hero = ({ scrollContainer, mousePosition, language }) => {
         />
       </div>
       
-      <div className='parallax__content absolute top-[10%] sm:top-[16%] lg:top-[24%] w-full mx-auto container px-6 flex flex-col lg:flex-row items-start z-10'>
-        <div className="flex-1 lg:mb-0">
+      <div className='parallax__content absolute top-[10%] sm:top-[16%] lg:top-[24%] w-full mx-auto container px-6 flex flex-col lg:flex-row items-start z-10 pointer-events-none'>
+        <div className="flex-1 lg:mb-0 pointer-events-auto">
           <Sparkles className="text-emerald-400 w-12 h-12 mb-6 animate-pulse" />
           <h1 className='font-medium text-[40px] xs:text-[50px] sm:text-[68px] md:text-[80px] lg:text-[100px] 2xl:text-[180px] leading-[1.1] bg-gradient-to-r from-white to-emerald-400 bg-clip-text text-transparent'>
             Davi Rezende
           </h1>
           <Position language={language} />
         </div>
-        <div className="flex-1 flex justify-start lg:justify-end mt-10 lg:mt-0">
+        <div className="flex-1 flex justify-start lg:justify-end mt-10 lg:mt-0 pointer-events-auto">
           <div className='font-bold text-[20px] sm:text-[30px] md:text-[36px] 2xl:text-[46px] leading-[1.2] streaky-glow max-w-sm 2xl:max-w-lg text-white text-left'>
             {language === 'pt-BR' ? 'Desenvolvedor\nFullStack' : 
              language === 'zh-CN' ? '全栈\n开发者' : 

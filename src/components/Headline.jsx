@@ -207,17 +207,17 @@ const Headline = () => {
           I also develop and configure chatbots for companies through my CNPJ (Fiscal Address) like EIM.</Over4Years>
         </Text>
         <Cta>
-          <Button href="/images/CV Dai Rezende Software Engineer En_us.pdf" download>
-            <ReadcvlogoIcon alt="Read CV" src="../public/images/ReadCvLogo.svg" />
+          <Button href="/Portfolio/assets/CV Dai Rezende Software Engineer En_us.pdf" download>
+            <ReadcvlogoIcon alt="Read CV" src="/Portfolio/assets/ReadCvLogo.svg" />
             <Label>My resume</Label>
           </Button>
           <Button1 href="https://wa.me/5527997602355" target="_blank" rel="noopener noreferrer">
             <Label>Get in touch</Label>
-            <ReadcvlogoIcon alt="Arrow Right" src="../public/images/ArrowRight.svg" />
+            <ReadcvlogoIcon alt="Arrow Right" src="/Portfolio/assets/ArrowRight.svg" />
           </Button1>
         </Cta>
       </Container>
-      <CodeTypingbroIcon alt="Code Typing" src="../public/images/Code_typing_bro.svg" />
+      <CodeTypingbroIcon alt="Code Typing" src="/Portfolio/assets/Code_typing_bro.svg" />
     </HeadlineContainer>
   );
 };

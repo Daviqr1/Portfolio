@@ -3,13 +3,13 @@ import { FileCode, Code, Database, Terminal, Coffee, Download, Server, PenTool,D
 
 const AboutSection = ({ language = 'pt-BR' }) => {
   const technologies = [
-    { name: 'Laravel', icon: '/images/Laravel.svg' },
-    { name: 'React', icon: '/images/React.svg' },
-    { name: 'MySQL', icon: '/images/Mysql.svg' },
-    { name: 'Tailwind', icon: '/images/Tailwind.svg' },
-    { name: 'Python', icon: '/images/Python.svg' },
-    { name: 'PHP', icon: '/images/Php.svg' },
-    { name: 'Vite', icon: '/images/Vitejs.svg' }
+    { name: 'Laravel', icon: '/Portfolio/assets/Laravel.svg' },
+    { name: 'React', icon: '/Portfolio/assets/React.svg' },
+    { name: 'MySQL', icon: '/Portfolio/assets/Mysql.svg' },
+    { name: 'Tailwind', icon: '/Portfolio/assets/Tailwind.svg' },
+    { name: 'Python', icon: '/Portfolio/assets/Python.svg' },
+    { name: 'PHP', icon: '/Portfolio/assets/Php.svg' },
+    { name: 'Vite', icon: '/Portfolio/assets/Vitejs.svg' }
   ];
 
   const translations = {

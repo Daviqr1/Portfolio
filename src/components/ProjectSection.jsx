@@ -65,7 +65,7 @@ const ProjectsSection = ({ language }) => {
       tech: ["JavaScript", "C++", "API REST", "ESP32", "Expo", "React-native", "WebSocket"],
       highlight: "Monitoramento em tempo real de dados de Telemetria",
       impact: "Coleta de dados de +400 Tratores em operação, aumentando a eficiência e produtividade na agricultura de precisão.",
-      image: "/images/harvester-dashboard.jpg",
+      image: "/Portfolio/assets/harvester-dashboard.jpg",
       
       stats: [
         { label: t.numberOfUsers, value: "429", icon: <Activity /> },
@@ -106,7 +106,7 @@ const ProjectsSection = ({ language }) => {
       tech: ["PHP", "Laravel", "Node.js", "Vue3", "Prisma", "Docker", "Kubernetes", "SQLite", "Redis"],
       highlight: "Sistema de transações em tempo real",
       impact: "Processamento de +1M de transações/dia",
-      image: "/images/casino-architecture.jpeg",
+      image: "/Portfolio/assets/casino-architecture.jpeg",
       github: "https://github.com/Daviqr1",
       stats: [
         { label: "NaN", value: "NaN%", icon: <Activity /> },
@@ -147,7 +147,7 @@ const ProjectsSection = ({ language }) => {
       tech: ["Python", "Telegram API", "BeautifulSoup", "NLTK", "Selenium"],
       highlight: "Automação inteligente de marketing",
       impact: "ROI de 300% em campanhas",
-      image: "/images/telegram-dashboard.png",
+      image: "/Portfolio/assets/telegram-dashboard.png",
       github: "https://github.com/Daviqr1",
       live: "https://t.me/PromoCentralBr",
       stats: [

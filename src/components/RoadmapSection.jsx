@@ -537,7 +537,7 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
                       Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
                         ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
                       Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
-                        ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}`}
+                        ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}
                   fill="none"
                   strokeWidth="2"
                   stroke="url(#roadmap-line-gradient)"

@@ -62,7 +62,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Portfolio">
       <div className="relative min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white overflow-x-hidden">
         {/* Animated Background */}
         <div 

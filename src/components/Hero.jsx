@@ -3,6 +3,7 @@ import { Sparkles } from 'lucide-react';
 import { Link } from 'react-scroll';
 import { SpacemanCanvas } from ".";
 import Position from "./Position";
+import { getPublicUrl } from '../utils';
 
 const Hero = ({ scrollContainer, mousePosition, language }) => {
   return (
@@ -28,16 +29,16 @@ const Hero = ({ scrollContainer, mousePosition, language }) => {
         />
       </div>
       
-      <div className='parallax__content absolute top-[10%] sm:top-[16%] lg:top-[24%] w-full mx-auto lg:pl-[38vh] lg:pr-[30vh] xl:pl-96 xl:pr-72 2xl:px-40 3xl:px-60 flex flex-col lg:flex-row items-start z-10'>
+      <div className='parallax__content absolute top-[10%] sm:top-[16%] lg:top-[24%] w-full mx-auto container px-6 flex flex-col lg:flex-row items-start z-10'>
         <div className="flex-1 lg:mb-0">
           <Sparkles className="text-emerald-400 w-12 h-12 mb-6 animate-pulse" />
-          <h1 className='font-medium text-[40px] xs:text-[50px] sm:text-[68px] md:text-[80px] lg:text-[100px] 2xl:text-[180px] leading-[110px] 2xl:leading-[160px] bg-gradient-to-r from-white to-emerald-400 bg-clip-text text-transparent'>
+          <h1 className='font-medium text-[40px] xs:text-[50px] sm:text-[68px] md:text-[80px] lg:text-[100px] 2xl:text-[180px] leading-[1.1] bg-gradient-to-r from-white to-emerald-400 bg-clip-text text-transparent'>
             Davi Rezende
           </h1>
           <Position language={language} />
         </div>
-        <div className="flex-1 flex justify-start lg:justify-end mt-4 sm:mt-14 ml-8 xs:ml-[-4vh] sm:ml-[-17vh] md:ml-[-26vh] lg:mt-10 2xl:mt-0">
-          <div className='font-bold text-[20px] sm:text-[30px] md:text-[36px] 2xl:text-[46px] sm:leading-[40px] md:leading-[50px] 2xl:leading-[60px] streaky-glow max-w-sm 2xl:max-w-lg text-white text-left'>
+        <div className="flex-1 flex justify-start lg:justify-end mt-10 lg:mt-0">
+          <div className='font-bold text-[20px] sm:text-[30px] md:text-[36px] 2xl:text-[46px] leading-[1.2] streaky-glow max-w-sm 2xl:max-w-lg text-white text-left'>
             {language === 'pt-BR' ? 'Desenvolvedor\nFullStack' : 
              language === 'zh-CN' ? '全栈\n开发者' : 
              'FullStack\nDeveloper'}
@@ -79,12 +80,12 @@ const Hero = ({ scrollContainer, mousePosition, language }) => {
       </div>
 
       {/* Parallax Images */}
-      <img className="parallax__stars" src="/parallax/1Stars.svg" alt="" />
-      <img className="parallax__planets" src="/parallax/2Planets.svg" alt="" />
-      <img className="parallax__mountain1" src="/parallax/3Mountain.svg" alt="" />
-      <img className="parallax__mountain2" src="/parallax/4Mountain.svg" alt="" />
-      <img className="parallax__crater" src="/parallax/5Crater.svg" alt="" />
-      <img className="parallax__sun" src="/parallax/6Sun.svg" alt="" />
+      <img className="parallax__stars" src={getPublicUrl("parallax/1Stars.svg")} alt="" />
+      <img className="parallax__planets" src={getPublicUrl("parallax/2Planets.svg")} alt="" />
+      <img className="parallax__mountain1" src={getPublicUrl("parallax/3Mountain.svg")} alt="" />
+      <img className="parallax__mountain2" src={getPublicUrl("parallax/4Mountain.svg")} alt="" />
+      <img className="parallax__crater" src={getPublicUrl("parallax/5Crater.svg")} alt="" />
+      <img className="parallax__sun" src={getPublicUrl("parallax/6Sun.svg")} alt="" />
 
       <SpacemanCanvas scrollContainer={scrollContainer} />
     </section>

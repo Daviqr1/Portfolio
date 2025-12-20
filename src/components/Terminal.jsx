@@ -51,12 +51,12 @@ const Terminal = ({ onClose, autoClose = true }) => {
     if (currentCommandIndex >= terminalSequence.length) {
       setTypingComplete(true);
       
-      if (autoClose) {
-        const timer = setTimeout(() => {
-          onClose();
-        }, 3000); // Reduzido para 3 segundos
-        return () => clearTimeout(timer);
-      }
+          if (autoClose) {
+            const timer = setTimeout(() => {
+              onClose();
+            }, 1500); // Reduzido para 1.5 segundos
+            return () => clearTimeout(timer);
+          }
       return;
     }
 
@@ -110,6 +110,7 @@ const Terminal = ({ onClose, autoClose = true }) => {
         animate={{ backgroundColor: 'rgba(0,0,0,0.85)' }}
         exit={{ backgroundColor: 'rgba(0,0,0,0)' }}
         transition={{ duration: 0.3 }}
+        onClick={onClose}
       >
         <motion.div 
           className="w-full max-w-3xl h-[60vh] bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 rounded-lg overflow-hidden border border-emerald-500/30 shadow-[0_0_40px_rgba(16,185,129,0.2)]"
@@ -117,6 +118,7 @@ const Terminal = ({ onClose, autoClose = true }) => {
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ duration: 0.4, type: 'spring' }}
+          onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro do terminal
         >
           {/* Barra de título */}
           <div className="bg-gray-900 text-white p-2 border-b border-emerald-500/30 flex justify-between items-center">

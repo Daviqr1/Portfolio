@@ -1,8 +1,10 @@
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useRef, useState } from "react";
-import spacemanScene from "../assets/3d/spaceman.glb";
 import CanvasLoader from "./Loader";
+
+// Import the model to let Vite handle the path and hashing
+import spacemanScene from "../assets/3d/spaceman.glb";
 
 const Spaceman = ({ scale, position, rotationX, rotationY }) => {
   const spacemanRef = useRef();
@@ -26,6 +28,8 @@ const Spaceman = ({ scale, position, rotationX, rotationY }) => {
     </mesh>
   );
 };
+
+// ... existing SpacemanCanvas code ...
 
 const SpacemanCanvas = ({ scrollContainer }) => {
   const [rotationX, setRotationX] = useState(0);

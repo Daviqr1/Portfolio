@@ -73,9 +73,9 @@ const ProjectsSection = ({ language }) => {
         { label: t.chipsManufactured, value: "500+", icon: <Clock /> }
       ],
       gallery: [
-        "/images/harvester-dashboard.jpg",
-        "/images/harvester-mobile.jpg",
-        "/images/harvester-hardware.jpg"
+        "/Portfolio/assets/harvester-dashboard.jpg",
+        "/Portfolio/assets/harvester-mobile.jpg",
+        "/Portfolio/assets/harvester-hardware.jpg"
       ],
       translations: {
         'pt-BR': {
@@ -114,9 +114,9 @@ const ProjectsSection = ({ language }) => {
         { label: "NaN", value: "NaNkk", icon: <Users /> }
       ],
       gallery: [
-        "/images/casino-admin.jpeg",
-        "/images/casino-architecture.jpeg",
-        "/images/casino-monitoring.jpeg"
+        "/Portfolio/assets/casino-admin.jpeg",
+        "/Portfolio/assets/casino-architecture.jpeg",
+        "/Portfolio/assets/casino-monitoring.jpeg"
       ],
       translations: {
         'pt-BR': {
@@ -156,9 +156,9 @@ const ProjectsSection = ({ language }) => {
         { label: t.conversionRate, value: "4.8%", icon: <BarChart2 /> }
       ],
       gallery: [
-        "/images/telegram-dashboard.png",
-        "/images/telegram-analytics.jpeg",
-        "/images/telegram-setup.jpeg"
+        "/Portfolio/assets/telegram-dashboard.png",
+        "/Portfolio/assets/telegram-analytics.jpeg",
+        "/Portfolio/assets/telegram-setup.jpeg"
       ],
       translations: {
         'pt-BR': {

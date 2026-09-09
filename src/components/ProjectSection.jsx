@@ -64,7 +64,7 @@ const ProjectsSection = ({ language }) => {
       icon: <Cpu className="w-6 h-6" />,
       tech: ["JavaScript", "C++", "API REST", "ESP32", "Expo", "React-native", "WebSocket"],
       highlight: "Monitoramento em tempo real de dados de Telemetria",
-      impact: "Coleta de dados de +400 Tratores em operação, aumentando a eficiência e produtividade na agricultura de precisão.",
+      impact: "Telemetria de frota e apontamento offline-first para operações de campo em agricultura de precisão.",
       image: "/Portfolio/assets/harvester-dashboard.jpg",
       
       stats: [
@@ -82,7 +82,7 @@ const ProjectsSection = ({ language }) => {
           description: "Aplicativo de telemetria para tratores com integração ESP32, desenvolvido em JavaScript e C++ utilizando WebSocket para comunicação em tempo real te telemetria e monitoramento de dados.",
           extendedDescription: "Desenvolvido para otimizar operações agrícolas, o Harvester_v1 é uma solução IoT completa que coleta dados em tempo real de sensores instalados em tratores. A solução usa ESP32 como microcontrolador principal, conectando-se a um servidor WebSocket para transmissão contínua de dados críticos como posição GPS, consumo de combustível, temperatura do motor e status de implementos.",
           highlight: "Monitoramento em tempo real de dados de Telemetria",
-          impact: "Coleta de dados de +400 Tratores em operação, aumentando a eficiência e produtividade na agricultura de precisão."
+          impact: "Telemetria de frota e apontamento offline-first para operações de campo em agricultura de precisão."
         },
         'en-US': {
           description: "Telemetry application for tractors with ESP32 integration, developed in JavaScript and C++ using WebSocket for real-time communication of telemetry and data monitoring.",
@@ -103,7 +103,7 @@ const ProjectsSection = ({ language }) => {
       description: "Colaboração no desenvolvimento da infraestrutura backend para plataforma de jogos online.",
       extendedDescription: "Viperpro é um projeto de código aberto desenvolvido em PHP utilizando o Framework Laravel 10 e Vue 3, com várias integrações com diferentes provedores de iGaming. Este projeto é destinado para fins de estudo. Use-o com responsabilidade e consciência, e não o utilize para fins fraudulentos.",
       icon: <Database className="w-6 h-6" />,
-      tech: ["PHP", "Laravel", "Node.js", "Vue3", "Prisma", "Docker", "Kubernetes", "SQLite", "Redis"],
+      tech: ["PHP", "Laravel", "Node.js", "Vue3", "Prisma", "Docker", "SQLite", "Redis"],
       highlight: "Sistema de transações em tempo real",
       impact: "Processamento de +1M de transações/dia",
       image: "/Portfolio/assets/casino-architecture.jpeg",
@@ -146,7 +146,7 @@ const ProjectsSection = ({ language }) => {
       icon: <MessageSquare className="w-6 h-6" />,
       tech: ["Python", "Telegram API", "BeautifulSoup", "NLTK", "Selenium"],
       highlight: "Automação inteligente de marketing",
-      impact: "ROI de 300% em campanhas",
+      impact: "Automação de campanhas e integração de catálogo",
       image: "/Portfolio/assets/telegram-dashboard.png",
       github: "https://github.com/Daviqr1",
       live: "https://t.me/PromoCentralBr",
@@ -165,7 +165,7 @@ const ProjectsSection = ({ language }) => {
           description: "Bot para Telegram que automatiza o disparo de promoções com links de afiliados.",
           extendedDescription: "Desenvolvido para otimizar campanhas de marketing de afiliados, o Super Promos Bot monitora automaticamente sites de e-commerce em busca de promoções, formatando e distribuindo-as para grupos de Telegram. O sistema utiliza web scraping avançado com rotação de proxies para evitar bloqueios, análise de dados para identificar as melhores ofertas e um algoritmo de NLP para gerar descrições atraentes para cada promoção.",
           highlight: "Automação inteligente de marketing",
-          impact: "ROI de 300% em campanhas"
+          impact: "Automação de campanhas e integração de catálogo"
         },
         'en-US': {
           description: "Bot for Telegram that automates the sending of promotions with affiliate links.",

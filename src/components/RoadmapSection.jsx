@@ -42,19 +42,19 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
     {
       id: "education",
       year: "2017-2021",
-      title: getLocalizedText("Engenharia UFES", "UFES Engineering", "UFES 工程学"),
+      title: getLocalizedText("Engenharia Mecânica — IFES", "Mechanical Engineering — IFES", "机械工程 — IFES"),
       icon: <GraduationCap size={28} />,
       description: getLocalizedText(
-        "Formação em Engenharia na Universidade Federal do Espírito Santo, onde tive meu primeiro contato formal com programação e desenvolvimento de software.",
-        "Engineering degree at Federal University of Espírito Santo, where I had my first formal contact with programming and software development.",
-        "在埃斯皮里托桑托联邦大学获得工程学学位，在那里我首次正式接触编程和软件开发。"
+        "Engenharia Mecânica no Instituto Federal do Espírito Santo (cursada, não concluída), onde tive meu primeiro contato formal com programação e com a matemática que uso até hoje.",
+        "Mechanical Engineering at Instituto Federal do Espírito Santo (attended, not completed), where I had my first formal contact with programming and with the mathematics I still use today.",
+        "在埃斯皮里托桑托联邦理工学院学习机械工程（未完成），在那里首次正式接触编程和至今仍在使用的数学。"
       ),
       details: [
         { 
           label: getLocalizedText("Curso", "Course", "课程"), 
-          value: getLocalizedText("Engenharia", "Engineering", "工程学") 
+          value: getLocalizedText("Engenharia Mecânica (não concluída)", "Mechanical Engineering (not completed)", "机械工程（未完成）") 
         },
-        { label: getLocalizedText("Instituição", "Institution", "机构"), value: "UFES" },
+        { label: getLocalizedText("Instituição", "Institution", "机构"), value: "IFES" },
         { 
           label: getLocalizedText("Conhecimentos", "Knowledge", "知识"), 
           value: "C++, Java, Algoritmos" 
@@ -99,19 +99,19 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
       title: getLocalizedText("Certificações & Backend", "Certifications & Backend", "认证与后端开发"),
       icon: <Award size={28} />,
       description: getLocalizedText(
-        "Período de intenso aprendizado onde conquistei certificações importantes em desenvolvimento backend e todas as certificações de engenheriro de software e principais linguagens no hackerhank.com.",
-        "Period of intense learning where I earned important backend development certifications and worked with scalable architectures at BButton.",
-        "在BButton学习的高强度阶段，获得重要的后端开发认证并使用可扩展架构工作。"
+        "Período de aprendizado intenso em desenvolvimento backend e arquitetura de aplicações.",
+        "A period of intense learning in backend development and application architecture.",
+        "后端开发与应用架构的高强度学习阶段。"
       ),
       details: [
         { 
-          label: getLocalizedText("Certificações", "Certifications", "认证"), 
-          value: "AWS, Docker, Laravel" 
+          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
+          value: "Node.js, Docker, Laravel" 
         },
         { label: getLocalizedText("Empresa", "Company", "公司"), value: "BButton Ventures" },
         { 
           label: getLocalizedText("Projetos", "Projects", "项目"), 
-          value: getLocalizedText("APIs e Microsserviços", "APIs and Microservices", "API和微服务") 
+          value: getLocalizedText("APIs e integrações", "APIs and integrations", "API 与集成") 
         }
       ],
       color: "from-purple-500 to-violet-600",
@@ -213,7 +213,7 @@ const RoadmapSection = ({ language = 'pt-BR' }) => {
         },
         { 
           label: getLocalizedText("Impacto", "Impact", "影响"), 
-          value: getLocalizedText("Redução de 30% em custos operacionais", "30% reduction in operational costs", "运营成本降低30%") 
+          value: getLocalizedText("Automação de processos de campo", "Field process automation", "现场流程自动化") 
         }
       ],
       color: "from-emerald-500 to-green-600",

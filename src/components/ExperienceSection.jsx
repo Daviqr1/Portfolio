@@ -39,8 +39,8 @@ const ExperienceSection = ({ language = 'pt-BR' }) => {
         'zh-CN': "收集机器学习应用的数据"
       },
       "emflora_achievement3": {
-        'pt-BR': "Arquitetura de microsserviços escalável",
-        'en-US': "Scalable microservices architecture",
+        'pt-BR': "Arquitetura modular escalável",
+        'en-US': "Scalable modular architecture",
         'zh-CN': "可扩展的微服务架构"
       },
       "emflora_achievement4": {

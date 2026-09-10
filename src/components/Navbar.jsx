@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Terminal, Globe } from 'lucide-react';
+import { Terminal, Globe, Menu, X } from 'lucide-react';
 import { Link } from 'react-scroll';
 
-const Navbar = ({ active, setActive, openTerminal, language, setLanguage }) => {
+const Navbar = ({ active, setActive, language, setLanguage }) => {
   const [toggle, setToggle] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langMenu, setLangMenu] = useState(false);
 
   const languages = [
-    { code: 'pt-BR', label: '🇧🇷 Português' },
-    { code: 'en-US', label: '🇺🇸 English' },
-    { code: 'zh-CN', label: '🇨🇳 中文' }
+    { code: 'pt-BR', label: 'Português' },
+    { code: 'en-US', label: 'English' },
+    { code: 'zh-CN', label: '中文' }
   ];
 
   useEffect(() => {
@@ -42,13 +42,17 @@ const Navbar = ({ active, setActive, openTerminal, language, setLanguage }) => {
     }`}>
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between">
-          <div 
+          <Link
+            to="home"
+            spy={true}
+            smooth={true}
+            offset={-80}
+            duration={500}
             className="text-2xl font-bold cursor-pointer group"
-            onClick={openTerminal}
           >
             <Terminal className="inline-block mr-2 group-hover:text-emerald-400 transition-colors" />
             <span className="group-hover:text-emerald-400 transition-colors">Davi Rezende</span>
-          </div>
+          </Link>
           
           <div className="hidden md:flex space-x-6 items-center">
             {navItems.map(item => (
@@ -78,7 +82,7 @@ const Navbar = ({ active, setActive, openTerminal, language, setLanguage }) => {
               >
                 <Globe className="w-5 h-5 mr-2 text-emerald-400" />
                 <span className="text-sm">
-                  {language === 'pt-BR' ? '🇧🇷' : language === 'zh-CN' ? '🇨🇳' : '🇺🇸'}
+                  {language === 'pt-BR' ? 'PT' : language === 'zh-CN' ? 'ZH' : 'EN'}
                 </span>
               </button>
               
@@ -108,7 +112,7 @@ const Navbar = ({ active, setActive, openTerminal, language, setLanguage }) => {
               className="text-white focus:outline-none"
               onClick={() => setToggle(!toggle)}
             >
-              {toggle ? "✕" : "☰"}
+              {toggle ? <X className="h-6 w-6" aria-hidden="true" /> : <Menu className="h-6 w-6" aria-hidden="true" />}
             </button>
           </div>
         </div>

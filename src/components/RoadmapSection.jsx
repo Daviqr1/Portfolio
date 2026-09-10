@@ -1,740 +1,305 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Map, Award, Rocket, Book, Cpu, Code, Briefcase, GraduationCap, Zap, 
-         GitBranch, Server, Globe, Sparkles, Laptop, Terminal, ChevronRight } from 'lucide-react';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { Ruler, Cpu, Compass, Server, Sparkles, ShieldCheck } from 'lucide-react';
+import { pick } from '../data';
+
+/* ---------------------------------------------------------------------------
+ * RoadmapSection — reescrita.
+ *
+ * A versão anterior contava uma trajetória genérica e em parte não sustentada
+ * por evidência (empresa que não aparece em nenhum repositório, "modernização
+ * de sistemas legados", anos sem lastro). Essa narrativa passou a viver em
+ * HistoriaSection, contada com data, fração de autoria e número medido.
+ *
+ * Para não haver duas versões da mesma história no mesmo site, esta seção passa
+ * a responder outra pergunta: NÃO "o que aconteceu", mas "o que cada fase somou
+ * à caixa de ferramentas". É o inventário de competências, ancorado nas mesmas
+ * fases do arco narrado acima — de modo que as duas seções se completam em vez
+ * de competir.
+ *
+ * O id "roadmap" é preservado: navLinks em src/data/index.js aponta para ele.
+ *
+ * Fontes: job_safe/assets/cv-pt.md (seção COMPETÊNCIAS, auditada) e
+ * job_safe/recon/BANCO-DE-EVIDENCIAS.md. Nenhum item aqui é aspiracional —
+ * todos existem em repositório do Davi.
+ * ------------------------------------------------------------------------- */
+
+const t3 = (ptBR, enUS, zhCN) => ({
+  'pt-BR': ptBR,
+  'en-US': enUS,
+  'zh-CN': zhCN === undefined ? enUS : zhCN,
+});
+
+const FASES = [
+  {
+    id: 'engenharia',
+    icone: Ruler,
+    nome: t3('Engenharia', 'Engineering'),
+    periodo: t3('a base', 'the base'),
+    resumo: t3(
+      'O hábito de perguntar como o número foi medido, e de escrever a incerteza junto com o resultado.',
+      'The habit of asking how a number was measured, and of writing the uncertainty next to the result.'
+    ),
+    competencias: [
+      t3('Método experimental', 'Experimental method'),
+      t3('Incerteza declarada', 'Stated uncertainty'),
+      t3('Falsificação de hipótese', 'Hypothesis falsification'),
+      t3('Álgebra linear e sinais', 'Linear algebra and signals'),
+      t3('Trade-off escrito antes do código', 'Trade-off written before the code'),
+      'ADR',
+    ],
+  },
+  {
+    id: 'industrial',
+    icone: Cpu,
+    nome: t3('Automação industrial', 'Industrial automation'),
+    periodo: t3('sistemas críticos', 'mission-critical systems'),
+    resumo: t3(
+      'Software que roda sem rede de resgate: on-premise, sem internet em runtime, com fronteira fail-safe desenhada.',
+      'Software that runs with no safety net: on-premise, no internet at runtime, with a fail-safe boundary by design.'
+    ),
+    competencias: [
+      'SCADA',
+      t3('CLP Siemens S7-1500', 'Siemens S7-1500 PLC'),
+      'S7Comm',
+      t3('Engenharia reversa de protocolo binário', 'Binary protocol reverse engineering'),
+      t3('Design fail-safe', 'Fail-safe design'),
+      t3('Watchdog em processo isolado', 'Watchdog in an isolated process'),
+      'Chaos testing',
+      'Soak testing',
+      t3('Deploy on-premise e air-gapped', 'On-premise and air-gapped deployment'),
+    ],
+  },
+  {
+    id: 'navegacao',
+    icone: Compass,
+    nome: t3('Navegação e sinais', 'Navigation and signals'),
+    periodo: t3('embarcados', 'embedded'),
+    resumo: t3(
+      'Sensor mente. O filtro é o que separa sinal de ruído — e a calibração é medida, nunca chutada.',
+      'Sensors lie. The filter is what separates signal from noise — and calibration is measured, never guessed.'
+    ),
+    competencias: [
+      'GNSS-RTK',
+      'NTRIP',
+      'RTCM3',
+      'UBX / NMEA',
+      'u-blox ZED-F9P',
+      t3('Fusão de sensores', 'Sensor fusion'),
+      t3('Filtro de Kalman Estendido', 'Extended Kalman Filter'),
+      t3('Otimização bayesiana', 'Bayesian optimization'),
+      'Raspberry Pi',
+      'ESP32',
+      t3('Geoespacial (GDAL, KML)', 'Geospatial (GDAL, KML)'),
+    ],
+  },
+  {
+    id: 'produto',
+    icone: Server,
+    nome: t3('Software de produto', 'Product software'),
+    periodo: t3('escala e time', 'scale and team'),
+    resumo: t3(
+      'PostgreSQL como ferramenta de arquitetura, não como lugar onde o dado dorme: isolamento, fila e busca resolvidos dentro do banco em vez de somar infraestrutura.',
+      'PostgreSQL as an architecture tool, not as the place where data sleeps: isolation, queueing and search solved inside the database instead of adding infrastructure.'
+    ),
+    competencias: [
+      'TypeScript',
+      'Node.js',
+      'NestJS',
+      'Next.js (App Router, Server Actions)',
+      'Fastify',
+      t3('React 18 e 19', 'React 18 and 19'),
+      'React Native',
+      'PostgreSQL 16',
+      'Prisma',
+      'Row-Level Security',
+      t3('Filas dentro do Postgres', 'Queues inside Postgres'),
+      'Full-text: tsvector, pg_trgm, unaccent',
+      t3('Paginação keyset', 'Keyset pagination'),
+      'Redis · BullMQ',
+      'Docker · GitHub Actions',
+      'Vitest · Cypress · Playwright',
+      t3('Teste de IDOR no CI', 'IDOR test in CI'),
+    ],
+  },
+  {
+    id: 'ia',
+    icone: Sparkles,
+    nome: t3('IA generativa em produção', 'Generative AI in production'),
+    periodo: t3('onde as duas se fundem', 'where both converge'),
+    resumo: t3(
+      'A camada que faz LLM sobreviver em produção: orçamento de tempo, guardrail determinístico e bancada de evals. É aqui que o rigor de medição da engenharia vira produto.',
+      'The layer that makes an LLM survive production: time budgets, a deterministic guardrail and an eval bench. This is where engineering measurement discipline turns into product.'
+    ),
+    competencias: [
+      t3(
+        'LLM em produção: OpenAI, Anthropic, DeepSeek, OpenRouter, Gemini',
+        'LLMs in production: OpenAI, Anthropic, DeepSeek, OpenRouter, Gemini'
+      ),
+      'Model Context Protocol (MCP)',
+      'OAuth 2.1',
+      'Tool calling',
+      t3('Sistemas multiagente', 'Multi-agent systems'),
+      t3('Gateway multiprovedor com cascata de fallback', 'Multi-provider gateway with fallback cascade'),
+      t3('Streaming SSE', 'SSE streaming'),
+      t3('Structured output com JSON Schema', 'Structured output with JSON Schema'),
+      'LLM as a Judge',
+      'Evals',
+      t3('Mitigação de alucinação', 'Hallucination mitigation'),
+      t3('Controle de custo por token', 'Per-token cost control'),
+      'ONNX Runtime',
+      'scikit-learn',
+    ],
+    destaque: true,
+  },
+];
+
+const PRECISAO = {
+  titulo: t3('Precisão sobre o rótulo', 'Precision over the label'),
+  itens: [
+    t3(
+      'A orquestração de agentes é autoral, escrita do zero. Não é LangChain, LangGraph nem CrewAI — e escrever o loop na mão é o motivo de eu saber exatamente onde ele quebra.',
+      'The agent orchestration is my own, written from scratch. It is not LangChain, LangGraph or CrewAI — and writing the loop by hand is exactly why I know where it breaks.'
+    ),
+    t3(
+      'A busca que está em produção é 100% léxica: tsvector, pg_trgm e unaccent. O caminho vetorial está em construção e só vira afirmação quando o recall@k dos dois lados estiver medido.',
+      'The search running in production is 100% lexical: tsvector, pg_trgm and unaccent. The vector path is under construction and only becomes a claim once recall@k has been measured on both sides.'
+    ),
+  ],
+};
+
+const CABECALHO = {
+  kicker: t3('Competências por fase', 'Capabilities by phase'),
+  titulo: t3(
+    'O que cada fase somou à caixa de ferramentas',
+    'What each phase added to the toolbox'
+  ),
+  lede: t3(
+    'A trajetória está contada acima. Aqui é o inventário: cada fase deixou um instrumento, nenhum deles foi descartado, e a barra de acúmulo mostra o que já estava na mochila quando a fase começou.',
+    'The trajectory is told above. This is the inventory: each phase left an instrument behind, none of them was discarded, and the accumulation bar shows what was already in the bag when the phase started.'
+  ),
+};
 
 const RoadmapSection = ({ language = 'pt-BR' }) => {
-  const [activeNode, setActiveNode] = useState(null);
-  const [animateMap, setAnimateMap] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [hoveredNode, setHoveredNode] = useState(null);
-  const containerRef = useRef(null);
-  const nodeControls = useAnimation();
-
-  useEffect(() => {
-    // Verificar se está em dispositivo móvel
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    // Iniciar animações
-    const timer = setTimeout(() => {
-      setAnimateMap(true);
-    }, 500);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  // Helper function para obter texto traduzido
-  const getLocalizedText = (ptText, enText, zhText) => {
-    if (language === 'pt-BR') return ptText;
-    if (language === 'zh-CN') return zhText;
-    return enText; // default to English
-  };
-
-  const journey = [
-    {
-      id: "education",
-      year: "2017-2021",
-      title: getLocalizedText("Engenharia Mecânica — IFES", "Mechanical Engineering — IFES", "机械工程 — IFES"),
-      icon: <GraduationCap size={28} />,
-      description: getLocalizedText(
-        "Engenharia Mecânica no Instituto Federal do Espírito Santo (cursada, não concluída), onde tive meu primeiro contato formal com programação e com a matemática que uso até hoje.",
-        "Mechanical Engineering at Instituto Federal do Espírito Santo (attended, not completed), where I had my first formal contact with programming and with the mathematics I still use today.",
-        "在埃斯皮里托桑托联邦理工学院学习机械工程（未完成），在那里首次正式接触编程和至今仍在使用的数学。"
-      ),
-      details: [
-        { 
-          label: getLocalizedText("Curso", "Course", "课程"), 
-          value: getLocalizedText("Engenharia Mecânica (não concluída)", "Mechanical Engineering (not completed)", "机械工程（未完成）") 
-        },
-        { label: getLocalizedText("Instituição", "Institution", "机构"), value: "IFES" },
-        { 
-          label: getLocalizedText("Conhecimentos", "Knowledge", "知识"), 
-          value: "C++, Java, Algoritmos" 
-        }
-      ],
-      color: "from-blue-500 to-indigo-600",
-      borderColor: "border-blue-500",
-      bgColor: "bg-blue-500",
-      lightColor: "rgba(59, 130, 246, 0.5)",
-      position: { x: "20%", y: "15%" }
-    },
-    {
-      id: "first-job",
-      year: "2022",
-      title: getLocalizedText("Primeiro Trabalho na FAPES", "First Job at FAPES", "FAPES 的第一份工作"),
-      icon: <Briefcase size={28} />,
-      description: getLocalizedText(
-        "Minha entrada no mercado como desenvolvedor web PHP na FAPES, tabalhando como desenvolvedor web significativas.",
-        "My entry into the market as a PHP web developer at FAPES, working with legacy systems and implementing significant improvements.",
-        "作为PHP网站开发者在FAPES进入市场，负责处理遗留系统并实施重要改进。"
-      ),
-      details: [
-        { label: getLocalizedText("Empresa", "Company", "公司"), value: "FAPES" },
-        { 
-          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
-          value: "PHP, jQuery, MySQL" 
-        },
-        { 
-          label: getLocalizedText("Conquista", "Achievement", "成就"), 
-          value: getLocalizedText("Modernização de sistemas legados", "Legacy system modernization", "遗留系统现代化") 
-        }
-      ],
-      color: "from-amber-500 to-orange-600",
-      borderColor: "border-amber-500",
-      bgColor: "bg-amber-500",
-      lightColor: "rgba(245, 158, 11, 0.5)",
-      position: { x: "35%", y: "25%" }
-    },
-    {
-      id: "certifications",
-      year: "2022",
-      title: getLocalizedText("Certificações & Backend", "Certifications & Backend", "认证与后端开发"),
-      icon: <Award size={28} />,
-      description: getLocalizedText(
-        "Período de aprendizado intenso em desenvolvimento backend e arquitetura de aplicações.",
-        "A period of intense learning in backend development and application architecture.",
-        "后端开发与应用架构的高强度学习阶段。"
-      ),
-      details: [
-        { 
-          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
-          value: "Node.js, Docker, Laravel" 
-        },
-        { label: getLocalizedText("Empresa", "Company", "公司"), value: "BButton Ventures" },
-        { 
-          label: getLocalizedText("Projetos", "Projects", "项目"), 
-          value: getLocalizedText("APIs e integrações", "APIs and integrations", "API 与集成") 
-        }
-      ],
-      color: "from-purple-500 to-violet-600",
-      borderColor: "border-purple-500",
-      bgColor: "bg-purple-500",
-      lightColor: "rgba(168, 85, 247, 0.5)",
-      position: { x: "55%", y: "15%" }
-    },
-    {
-      id: "freelance",
-      year: "2022-2024",
-      title: getLocalizedText("Era Freelancer", "Freelance Era", "自由职业时期"),
-      icon: <Globe size={28} />,
-      description: getLocalizedText(
-        "Explorei o mundo dos projetos freelance, desenvolvendo soluções personalizadas para diversos clientes e adquirindo experiência em múltiplas frentes.",
-        "Explored the world of freelance projects, developing custom solutions for various clients and gaining experience on multiple fronts.",
-        "探索自由职业项目的世界，为各种客户开发定制解决方案，在多个方面获得经验。"
-      ),
-      details: [
-        { label: getLocalizedText("Projetos", "Projects", "项目"), value: "15+" },
-        { 
-          label: getLocalizedText("Clientes", "Clients", "客户"), 
-          value: getLocalizedText("Pequenas e médias empresas", "Small and medium businesses", "中小型企业") 
-        },
-        { 
-          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
-          value: "React, Node.js, PHP" 
-        }
-      ],
-      color: "from-green-500 to-emerald-600",
-      borderColor: "border-green-500",
-      bgColor: "bg-green-500",
-      lightColor: "rgba(16, 185, 129, 0.5)",
-      position: { x: "25%", y: "45%" }
-    },
-    {
-      id: "saas",
-      year: "2024",
-      title: getLocalizedText("Sociedade em SaaS", "SaaS Partnership", "SaaS合作伙伴关系"),
-      icon: <Server size={28} />,
-      description: getLocalizedText(
-        "Formei sociedade para desenvolvimento de soluções SaaS, criando produtos escaláveis e ganhando experiência em gestão de produto e negócios.",
-        "Formed partnerships for SaaS solutions development, creating scalable products and gaining experience in product and business management.",
-        "建立SaaS解决方案开发合作伙伴关系，创建可扩展产品并获得产品和业务管理经验。"
-      ),
-      details: [
-        { label: getLocalizedText("Modelo", "Model", "模式"), value: "SaaS" },
-        { label: getLocalizedText("Stack", "Stack", "技术栈"), value: "LAMP, React, AWS" },
-        { 
-          label: getLocalizedText("Foco", "Focus", "重点"), 
-          value: getLocalizedText("Soluções B2B", "B2B Solutions", "B2B解决方案") 
-        }
-      ],
-      color: "from-cyan-500 to-blue-600",
-      borderColor: "border-cyan-500",
-      bgColor: "bg-cyan-500",
-      lightColor: "rgba(6, 182, 212, 0.5)",
-      position: { x: "65%", y: "40%" }
-    },
-    {
-      id: "mobile-dev",
-      year: "2024-2025",
-      title: getLocalizedText("Desenvolvimento Mobile", "Mobile Development", "移动应用开发"),
-      icon: <Laptop size={28} />,
-      description: getLocalizedText(
-        "Transição para desenvolvimento mobile com foco em React Native, criando aplicativos para diversas plataformas e integrando com APIs backend.",
-        "Transition to mobile development focusing on React Native, creating applications for various platforms and integrating with backend APIs.",
-        "转向专注于React Native的移动开发，为各种平台创建应用程序并与后端API集成。"
-      ),
-      details: [
-        { label: getLocalizedText("Plataformas", "Platforms", "平台"), value: "iOS, Android" },
-        { label: getLocalizedText("Framework", "Framework", "框架"), value: "React Native" },
-        { 
-          label: getLocalizedText("Projetos", "Projects", "项目"), 
-          value: getLocalizedText("Aplicativos corporativos e de consumo", "Corporate and consumer apps", "企业和消费者应用") 
-        }
-      ],
-      color: "from-rose-500 to-pink-600",
-      borderColor: "border-rose-500",
-      bgColor: "bg-rose-500",
-      lightColor: "rgba(244, 63, 94, 0.5)",
-      position: { x: "45%", y: "55%" }
-    },
-    {
-      id: "iot-projects",
-      year: "2024-2025",
-      title: getLocalizedText("Soluções IoT & Emflora", "IoT Solutions & Emflora", "物联网解决方案与Emflora"),
-      icon: <Cpu size={28} />,
-      description: getLocalizedText(
-        "Liderança no desenvolvimento de soluções tecnológicas para agricultura de precisão na Emflora, combinando IoT, mobile e backend.",
-        "Leading the development of technological solutions for precision agriculture at Emflora, combining IoT, mobile and backend.",
-        "在Emflora领导精准农业技术解决方案的开发，结合物联网、移动和后端技术。"
-      ),
-      details: [
-        { label: getLocalizedText("Empresa", "Company", "公司"), value: "Organização Emflora" },
-        { 
-          label: getLocalizedText("Tecnologias", "Technologies", "技术"), 
-          value: "ESP32, React Native, Node.js" 
-        },
-        { 
-          label: getLocalizedText("Impacto", "Impact", "影响"), 
-          value: getLocalizedText("Automação de processos de campo", "Field process automation", "现场流程自动化") 
-        }
-      ],
-      color: "from-emerald-500 to-green-600",
-      borderColor: "border-emerald-500",
-      bgColor: "bg-emerald-500",
-      lightColor: "rgba(16, 185, 129, 0.5)",
-      position: { x: "75%", y: "65%" }
-    },
-    {
-      id: "future",
-      year: "2025+",
-      title: getLocalizedText("Próximos Passos", "Next Steps", "下一步"),
-      icon: <Rocket size={28} />,
-      description: getLocalizedText(
-        "Busca por oportunidades internacionais e desenvolvimento de habilidades em IA e sistemas distribuídos, com foco em criar impacto global.",
-        "Seeking international opportunities and developing skills in AI and distributed systems, focusing on creating global impact.",
-        "寻求国际机会并发展人工智能和分布式系统技能，专注于创造全球影响力。"
-      ),
-      details: [
-        { 
-          label: getLocalizedText("Objetivos", "Goals", "目标"), 
-          value: getLocalizedText("Relocalização internacional", "International relocation", "国际重新定位") 
-        },
-        { 
-          label: getLocalizedText("Aprendizado", "Learning", "学习"), 
-          value: "AI/ML, Cloud Native" 
-        },
-        { 
-          label: getLocalizedText("Visão", "Vision", "愿景"), 
-          value: getLocalizedText("Criar soluções de impacto global", "Create solutions with global impact", "创造具有全球影响力的解决方案") 
-        }
-      ],
-      color: "from-indigo-500 to-purple-600",
-      borderColor: "border-indigo-500",
-      bgColor: "bg-indigo-500",
-      lightColor: "rgba(79, 70, 229, 0.5)",
-      position: { x: "50%", y: "85%" }
-    }
-  ];
+  const p = (valor) => pick(valor, language);
 
   return (
-    <section id="roadmap" className="py-20 bg-gray-900/80 relative overflow-hidden min-h-screen">
-      {/* Efeitos de background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(16,185,129,0.1),transparent)]" />
-      
-      {/* Substituímos a string SVG complexa por um estilo CSS simples */}
-      <div className="absolute top-0 left-0 w-full h-full" style={{ 
-        backgroundImage: "radial-gradient(circle at 3px 3px, rgba(16, 185, 129, 0.1) 3px, transparent 0)",
-        backgroundSize: "200px 200px"
-      }} />
-      
-      <div className="absolute top-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-40 left-10 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px]" />
-      <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px]" />
-      
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="flex flex-col items-center mb-12">
-          <motion.div 
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="inline-flex items-center px-4 py-2 rounded-full bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 mb-4"
-          >
-            <Map className="mr-2 text-emerald-400" />
-            <span className="text-sm text-emerald-400 font-medium">
-              {language === 'pt-BR' ? 'Cronologia Profissional' : 'Professional Timeline'}
-            </span>
-          </motion.div>
-          
-          <motion.h2 
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500 mb-6"
-          >
-            {language === 'pt-BR' ? 'Minha Jornada na Tecnologia' : 'My Tech Journey'}
-          </motion.h2>
-          
-          <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="max-w-2xl text-center"
-          >
-            <p className="text-lg text-gray-300/90">
-              {language === 'pt-BR' 
-                ? "Da universidade ao desenvolvimento de soluções de impacto global, cada etapa dessa jornada representa um capítulo importante na minha evolução como desenvolvedor."
-                : "From university to developing global impact solutions, each stage of this journey represents an important chapter in my evolution as a developer."}
-            </p>
-          </motion.div>
-        </div>
-        
-        {isMobile ? (
-          // Versão mobile - Timeline Futurística Aprimorada
-          <div className="relative mb-10">
-            {/* Linha do tempo central com gradiente */}
-            <div className="absolute left-7 top-0 bottom-0 w-3 bg-gradient-to-b from-blue-500/70 via-emerald-500/70 to-indigo-500/70 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]">
-              <motion.div
-                className="absolute top-0 left-0 right-0 bottom-0 bg-gradient-to-b from-blue-400 via-emerald-400 to-indigo-400 rounded-full"
-                initial={{ scaleY: 0, originY: 0 }}
-                animate={{ scaleY: 1 }}
-                transition={{ duration: 2, delay: 0.5, ease: "easeInOut" }}
-              />
-            </div>
-            
-            {/* Partículas em movimento ao longo da linha */}
-            <div className="absolute left-[0.7rem] top-0 bottom-0 w-2">
-              <motion.div
-                className="absolute w-5 h-5 rounded-full bg-white shadow-[0_0_15px_5px_rgba(255,255,255,0.5)]"
-                initial={{ top: "0%" }}
-                animate={{ 
-                  top: ["0%", "100%", "0%"],
-                  opacity: [0.8, 0.2, 0.8]
-                }}
-                transition={{ 
-                  duration: 15, 
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
-              <motion.div
-                className="absolute w-3 h-3 rounded-full bg-emerald-300 shadow-[0_0_10px_4px_rgba(16,185,129,0.5)]"
-                initial={{ top: "30%" }}
-                animate={{ 
-                  top: ["30%", "90%", "30%"],
-                  opacity: [0.7, 0.3, 0.7]
-                }}
-                transition={{ 
-                  duration: 12, 
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 2
-                }}
-              />
-              <motion.div
-                className="absolute w-3 h-3 rounded-full bg-blue-300 shadow-[0_0_10px_4px_rgba(59,130,246,0.5)]"
-                initial={{ top: "70%" }}
-                animate={{ 
-                  top: ["70%", "10%", "70%"],
-                  opacity: [0.6, 0.4, 0.6]
-                }}
-                transition={{ 
-                  duration: 18, 
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1
-                }}
-              />
-            </div>
-            
-            <div className="space-y-20 pl-20">
-              {journey.map((node, index) => (
-                <motion.div
-                  key={node.id}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: 0.1 * index }}
-                  className="relative"
-                >
-                  {/* Nó na timeline - Com ícones maiores e prévia visível */}
-                  <div
-                    className="absolute left-[-64px] top-8 w-28 h-28 rounded-full flex items-center justify-center cursor-pointer transform transition-all duration-500 hover:scale-110"
-                    style={{
-                      background: `linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(17, 24, 39, 0.7))`,
-                      boxShadow: activeNode === node.id 
-                        ? `0 0 0 2px ${node.bgColor.replace('bg-', '')}, 0 0 30px 0 ${node.lightColor}`
-                        : `0 0 0 2px rgba(31, 41, 55, 0.8), 0 0 15px 0 rgba(31, 41, 55, 0.5)`
-                    }}
-                    onClick={() => setActiveNode(activeNode === node.id ? null : node.id)}
-                  >
-                    {/* Círculo interno colorido */}
-                    <div 
-                      className="w-20 h-20 rounded-full flex items-center justify-center z-10 transition-all duration-500"
-                      style={{
-                        background: `linear-gradient(135deg, ${node.bgColor.replace('bg-', '')}, ${node.bgColor.replace('bg-', '')}99)`,
-                        boxShadow: `0 0 20px 0 ${node.lightColor}`
-                      }}
-                    >
-                      <div className="text-white text-3xl">
-                        {node.icon}
-                      </div>
-                    </div>
-                    
-                    {/* Efeito de pulso */}
-                    <motion.div 
-                      className="absolute inset-0 rounded-full"
-                      animate={{ 
-                        boxShadow: activeNode === node.id 
-                          ? [`0 0 0 3px ${node.bgColor.replace('bg-', '')}, 0 0 20px 0 ${node.lightColor}`, 
-                             `0 0 0 4px ${node.bgColor.replace('bg-', '')}, 0 0 40px 5px ${node.lightColor}`, 
-                             `0 0 0 3px ${node.bgColor.replace('bg-', '')}, 0 0 20px 0 ${node.lightColor}`] 
-                          : [`0 0 0 1px ${node.bgColor.replace('bg-', '')}, 0 0 8px 0 ${node.lightColor}`, 
-                             `0 0 0 2px ${node.bgColor.replace('bg-', '')}, 0 0 15px 2px ${node.lightColor}`, 
-                             `0 0 0 1px ${node.bgColor.replace('bg-', '')}, 0 0 8px 0 ${node.lightColor}`]
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    />
-                  </div>
-                  
-                  {/* Ano com faixa futurística */}
-                  <div className="absolute left-[-140px] top-8 transform -translate-y-1/2">
-                    <div className="bg-gray-900/90 backdrop-blur-sm px-4 py-2 rounded-lg border border-gray-700/60 shadow-lg">
-                      <span className="text-sm font-mono text-emerald-400 font-bold tracking-wider">{node.year}</span>
-                    </div>
-                  </div>
-                  
-                  {/* Linha horizontal ligando o nó ao card com gradiente e animação */}
-                  <div className="absolute left-[-35px] top-8 w-[35px] h-1">
-                    <motion.div 
-                      className="h-full rounded-full"
-                      style={{
-                        background: `linear-gradient(to right, ${node.bgColor.replace('bg-', '')}, rgba(31, 41, 55, 0.7))` 
-                      }}
-                      initial={{ scaleX: 0, originX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.7, delay: 0.2 * index }}
-                    />
-                  </div>
-                  
-                  {/* Card de conteúdo aprimorado */}
-                  <motion.div
-                    layout
-                    className="bg-gray-900/80 backdrop-blur-md rounded-xl overflow-hidden border-l-4 shadow-lg"
-                    style={{
-                      borderColor: activeNode === node.id ? node.bgColor.replace('bg-', '') : 'rgba(31, 41, 55, 0.5)',
-                      boxShadow: activeNode === node.id ? `0 10px 30px -10px ${node.lightColor}` : '0 10px 30px -15px rgba(0, 0, 0, 0.3)'
-                    }}
-                  >
-                    <div className="p-6 relative">
-                      {/* Elemento decorativo no topo do card */}
-                      <div 
-                        className="absolute top-0 left-0 h-1 w-full"
-                        style={{ 
-                          background: `linear-gradient(to right, ${node.bgColor.replace('bg-', '')}, rgba(31, 41, 55, 0.1))` 
-                        }}
-                      />
-                      
-                      <h3 className="text-xl font-bold text-white flex items-center">
-                        <span className="mr-3 text-xl bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">{index + 1}.</span>
-                        {node.title}
-                      </h3>
-                      
-                      <p className="text-gray-300 my-3">{node.description}</p>
-                      
-                      <AnimatePresence>
-                        {activeNode === node.id && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="mt-4 pt-4 border-t border-gray-700/50"
-                          >
-                            <div className="space-y-3 text-sm">
-                              {node.details.map((detail, i) => (
-                                <div key={i} className="flex justify-between">
-                                  <span className="text-gray-400 font-medium">{detail.label}:</span>
-                                  <span className="text-emerald-300 font-medium">{detail.value}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                      
-                      <button 
-                        className="flex items-center text-emerald-400 text-sm font-medium mt-4 group" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveNode(activeNode === node.id ? null : node.id);
-                        }}
-                      >
-                        <span>{activeNode === node.id ? 'Ver menos' : 'Ver mais'}</span>
-                        <ChevronRight className={`w-4 h-4 ml-1 transition-transform duration-300 group-hover:translate-x-1 ${activeNode === node.id ? 'rotate-90' : ''}`} />
-                      </button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          // Versão desktop - Mapa interativo futurístico
-          <div className="relative h-[800px] w-full mb-16 overflow-hidden rounded-3xl border border-emerald-500/20 shadow-2xl" ref={containerRef}>
-            {/* Fundo estilizado com grid e gradientes */}
-            <div className="absolute inset-0 bg-gray-900/80 backdrop-blur-md">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07),transparent_70%)]"></div>
-              <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-gray-900/50 to-transparent"></div>
-              
-              {/* Grid de fundo */}
-              <div className="absolute inset-0" style={{ 
-                backgroundImage: "linear-gradient(to right, rgba(16, 185, 129, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(16, 185, 129, 0.03) 1px, transparent 1px)",
-                backgroundSize: "60px 60px"
-              }}></div>
-              
-              {/* Linha de conexão animada entre os nós */}
-              <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
-                <defs>
-                  <linearGradient id="roadmap-line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-                    <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
-                  </linearGradient>
-                  <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
-                
-                <motion.path 
-                  d={`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
-                      Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
-                        ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
-                      Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
-                        ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
-                      Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
-                        ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
-                      Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
-                        ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
-                      Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
-                        ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
-                      Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
-                        ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
-                      Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
-                        ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}
-                  fill="none"
-                  strokeWidth="2"
-                  stroke="url(#roadmap-line-gradient)"
-                  filter="url(#glow)"
-                  strokeDasharray="12,8"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 3, delay: 0.5, ease: "easeInOut" }}
-                />
-                
-                {/* Partículas animadas ao longo do caminho */}
-                <motion.circle 
-                  r="6" 
-                  fill="#10b981" 
-                  filter="url(#glow)"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0.8, 0.2, 0.8],
-                    offsetDistance: ["0%", "100%"]
-                  }}
-                  style={{ offsetPath: `path('${`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
-                                          Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
-                                          ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
-                                          Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
-                                          ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
-                                          Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
-                                          ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
-                                          Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
-                                          ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
-                                          Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
-                                          ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
-                                          Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
-                                          ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
-                                          Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
-                                          ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}')` }}
-                  transition={{ 
-                    duration: 15, 
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                />
-                <motion.circle 
-                  r="4" 
-                  fill="#3b82f6" 
-                  filter="url(#glow)"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0.7, 0.3, 0.7],
-                    offsetDistance: ["25%", "75%", "25%"]
-                  }}
-                  style={{ offsetPath: `path('${`M ${parseInt(journey[0].position.x)} ${parseInt(journey[0].position.y)} 
-                                          Q ${parseInt(journey[1].position.x) - 5} ${parseInt(journey[0].position.y) + 10}, 
-                                          ${parseInt(journey[1].position.x)} ${parseInt(journey[1].position.y)}
-                                          Q ${parseInt(journey[2].position.x) - 10} ${parseInt(journey[1].position.y) + 15},
-                                          ${parseInt(journey[2].position.x)} ${parseInt(journey[2].position.y)}
-                                          Q ${parseInt(journey[2].position.x) + 5} ${parseInt(journey[3].position.y) - 15},
-                                          ${parseInt(journey[3].position.x)} ${parseInt(journey[3].position.y)}
-                                          Q ${parseInt(journey[4].position.x) - 10} ${parseInt(journey[3].position.y) + 5},
-                                          ${parseInt(journey[4].position.x)} ${parseInt(journey[4].position.y)}
-                                          Q ${parseInt(journey[5].position.x) - 15} ${parseInt(journey[4].position.y) + 10},
-                                          ${parseInt(journey[5].position.x)} ${parseInt(journey[5].position.y)}
-                                          Q ${parseInt(journey[6].position.x) + 5} ${parseInt(journey[5].position.y) + 15},
-                                          ${parseInt(journey[6].position.x)} ${parseInt(journey[6].position.y)}
-                                          Q ${parseInt(journey[7].position.x) - 5} ${parseInt(journey[6].position.y) + 10},
-                                          ${parseInt(journey[7].position.x)} ${parseInt(journey[7].position.y)}`}')` }}
-                  transition={{ 
-                    duration: 18, 
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2
-                  }}
-                />
-              </svg>
-              
-              {/* Renderizar os nós do roadmap */}
-              {journey.map((node, index) => (
-                <motion.div
-                  key={node.id}
-                  className="absolute"
-                  style={{ 
-                    left: node.position.x, 
-                    top: node.position.y, 
-                    transform: 'translate(-50%, -50%)'
-                  }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 * index }}
-                  whileHover={{ scale: 1.1 }}
-                >
-                  {/* Círculo do nó com pulso */}
-                  <div 
-                    className="relative flex items-center justify-center cursor-pointer group"
-                    onClick={() => setActiveNode(activeNode === node.id ? null : node.id)}
-                    onMouseEnter={() => setHoveredNode(node.id)}
-                    onMouseLeave={() => setHoveredNode(null)}
-                  >
-                    {/* Círculo externo com efeito de pulso */}
-                    <motion.div 
-                      className="absolute w-[120px] h-[120px] rounded-full"
-                      style={{
-                        background: `radial-gradient(circle, ${node.bgColor.replace('bg-', '')}30 0%, ${node.bgColor.replace('bg-', '')}10 70%, transparent 100%)`
-                      }}
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.7, 0.2, 0.7]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    />
-                    
-                    {/* Círculo do nó */}
-                    <div
-                      className="w-24 h-24 rounded-full bg-gray-900/90 backdrop-blur-md border-2 flex items-center justify-center z-10 shadow-lg group-hover:shadow-xl transition-all duration-300"
-                      style={{
-                        borderColor: node.bgColor.replace('bg-', ''),
-                        boxShadow: (activeNode === node.id || hoveredNode === node.id)
-                          ? `0 0 0 3px ${node.bgColor.replace('bg-', '')}50, 0 0 30px 0 ${node.lightColor}`
-                          : `0 0 15px 0 ${node.lightColor}50`
-                      }}
-                    >
-                      {/* Ícone dentro do círculo */}
-                      <div 
-                        className="w-16 h-16 rounded-full flex items-center justify-center"
-                        style={{ 
-                          background: `linear-gradient(135deg, ${node.bgColor.replace('bg-', '')}90, ${node.bgColor.replace('bg-', '')}40)`,
-                          boxShadow: `inset 0 0 10px ${node.lightColor}` 
-                        }}
-                      >
-                        <div className="text-white text-3xl">
-                          {node.icon}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Ano em etiqueta acima */}
-                    <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-md border border-gray-700/60">
-                      <span className="text-sm font-mono font-bold text-emerald-400">{node.year}</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+    <section id="roadmap" className="relative overflow-hidden py-24">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-gray-900/50 via-emerald-950/15 to-gray-900/40" />
+      <div className="pointer-events-none absolute left-1/3 top-10 h-72 w-72 rounded-full bg-emerald-500/5 blur-3xl" />
 
-      {/* Camada de Balões de Informação */}
-      <div className="pointer-events-none">
-        <AnimatePresence>
-          {!isMobile && journey.map((node) => (
-            (activeNode === node.id || hoveredNode === node.id) && (
-              <motion.div
-                key={`tooltip-${node.id}`}
-                className="fixed z-[9999] pointer-events-auto"
-                style={{
-                  top: containerRef.current ? 
-                    containerRef.current.getBoundingClientRect().top + parseInt(node.position.y) / 100 * containerRef.current.offsetHeight : 0,
-                  left: containerRef.current ? 
-                    containerRef.current.getBoundingClientRect().left + parseInt(node.position.x) / 100 * containerRef.current.offsetWidth + 60 : 0,
-                  width: '300px',
-                  transform: 'translate(-50%, -50%)'
-                }}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
+      <div className="container relative mx-auto px-6">
+        <header className="max-w-3xl">
+          <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-emerald-400/80">
+            {p(CABECALHO.kicker)}
+          </p>
+          <h2 className="mt-5 text-3xl font-bold leading-tight text-white sm:text-4xl">
+            {p(CABECALHO.titulo)}
+          </h2>
+          <div className="mt-6 h-px w-24 bg-gradient-to-r from-emerald-400 to-transparent" />
+          <p className="mt-6 text-base leading-relaxed text-gray-300/85">{p(CABECALHO.lede)}</p>
+        </header>
+
+        <div className="mt-14 border-t border-white/10">
+          {FASES.map((fase, i) => {
+            const Icone = fase.icone;
+            return (
+              <div
+                key={fase.id}
+                className={`grid gap-6 border-b border-white/10 px-1 py-8 lg:grid-cols-[17rem_1fr] lg:gap-12 ${
+                  fase.destaque ? 'bg-emerald-500/[0.04]' : ''
+                }`}
               >
-                <div 
-                  className="bg-gray-900/95 backdrop-blur-xl border border-gray-700/50 rounded-xl overflow-hidden shadow-2xl"
-                  style={{
-                    borderLeft: `4px solid ${node.bgColor.replace('bg-', '')}`,
-                    boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 20px 0 ${node.lightColor}30`
-                  }}
-                >
-                  <div className="p-5">
-                    <h3 className="text-white text-lg font-bold">{node.title}</h3>
-                    <p className="text-gray-300 text-sm mt-2">{node.description}</p>
-                    
-                    <div className="mt-4 pt-3 border-t border-gray-700/50">
-                      <div className="space-y-2">
-                        {node.details.map((detail, i) => (
-                          <div key={i} className="flex justify-between text-xs">
-                            <span className="text-gray-400">{detail.label}:</span>
-                            <span className="text-emerald-300 font-medium">{detail.value}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                {/* Coluna esquerda: identidade da fase */}
+                <div className="lg:pr-6">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex h-9 w-9 items-center justify-center border ${
+                        fase.destaque
+                          ? 'border-emerald-400/50 bg-emerald-400/10 text-emerald-300'
+                          : 'border-white/10 bg-white/[0.03] text-emerald-500/70'
+                      }`}
+                      style={{ borderRadius: 2 }}
+                      aria-hidden="true"
+                    >
+                      <Icone size={17} />
+                    </span>
+                    <span className="font-mono text-[11px] tracking-[0.25em] text-gray-600">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
                   </div>
+
+                  <h3
+                    className={`mt-4 text-lg font-semibold leading-snug ${
+                      fase.destaque ? 'text-emerald-200' : 'text-white'
+                    }`}
+                  >
+                    {p(fase.nome)}
+                  </h3>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                    {p(fase.periodo)}
+                  </p>
+
+                  {/* Barra de acúmulo: o que já estava na mochila quando a fase começou */}
+                  <div
+                    className="mt-4 flex gap-1"
+                    role="img"
+                    aria-label={`${i + 1} / ${FASES.length}`}
+                  >
+                    {FASES.map((_, j) => (
+                      <span
+                        key={j}
+                        className={`h-[3px] w-6 ${
+                          j <= i
+                            ? fase.destaque
+                              ? 'bg-emerald-400'
+                              : 'bg-emerald-500/60'
+                            : 'bg-white/10'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="mt-4 text-[13px] leading-relaxed text-gray-400">{p(fase.resumo)}</p>
                 </div>
-              </motion.div>
-            )
-          ))}
-        </AnimatePresence>
+
+                {/* Coluna direita: o inventário */}
+                <ul className="flex flex-wrap content-start gap-2">
+                  {fase.competencias.map((comp, j) => (
+                    <li
+                      key={j}
+                      className={`border px-2.5 py-1 font-mono text-[11px] leading-relaxed transition-colors ${
+                        fase.destaque
+                          ? 'border-emerald-400/25 bg-emerald-400/[0.07] text-emerald-100/90 hover:border-emerald-400/50'
+                          : 'border-white/10 bg-white/[0.02] text-gray-300 hover:border-emerald-500/30 hover:text-emerald-200'
+                      }`}
+                      style={{ borderRadius: 2 }}
+                    >
+                      {p(comp)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Precisão sobre o rótulo — o que ele deliberadamente NÃO chama pelo nome errado */}
+        <div className="mt-12 border-l-2 border-emerald-500/60 bg-gray-900/40 px-6 py-7 backdrop-blur-sm sm:px-8">
+          <div className="flex items-center gap-3">
+            <ShieldCheck size={17} className="text-emerald-400" aria-hidden="true" />
+            <h3 className="font-mono text-[11px] uppercase tracking-[0.3em] text-emerald-400/80">
+              {p(PRECISAO.titulo)}
+            </h3>
+          </div>
+          <ul className="mt-5 grid gap-5 lg:grid-cols-2">
+            {PRECISAO.itens.map((item, i) => (
+              <li key={i} className="flex gap-3 text-sm leading-relaxed text-gray-300/85">
+                <span className="mt-[7px] h-1 w-1 shrink-0 bg-emerald-400" aria-hidden="true" />
+                <span>{p(item)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

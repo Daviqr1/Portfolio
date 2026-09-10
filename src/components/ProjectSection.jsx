@@ -1,418 +1,512 @@
-import React, { useState } from 'react';
-import { Code2, Cpu, Database, MessageSquare, Zap, Award, ArrowRight, Github, ExternalLink, X, BarChart2, Clock, Users, Activity, Code } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import styles from './ProjectsSection.module.css';
+// ---------------------------------------------------------------------------
+// ProjectsSection — a seção de projetos.
+//
+// O que mudou e por quê:
+//
+// * O array LOCAL de projetos foi APAGADO. Dois dos três projetos que ele
+//   listava não eram do Davi, os números não vinham de medição (havia até
+//   literal "NaN" na tela) e dois dos três caminhos de imagem não existiam no
+//   repositório — os cards renderizavam o texto alternativo de uma imagem
+//   quebrada. O conteúdo agora vem inteiro de `../data/projetos`, que é a
+//   fonte auditada.
+// * Este arquivo não afirma nada: ele apresenta. Todo número, nome, bullet e
+//   link vem do dado. As únicas strings daqui são de interface ("ver
+//   detalhes", "código privado"), que não fazem alegação alguma sobre a
+//   carreira do Davi.
+// * A leitura do dado tolera variação de nome de campo (pt e en) porque o
+//   arquivo de dados é mantido por outra frente. Campo ausente some do card em
+//   vez de virar placeholder ou número inventado.
+// ---------------------------------------------------------------------------
+
+import React, { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Code2, FolderGit2 } from 'lucide-react';
+
+import ProjectCard from './ProjectCard';
+import * as projectData from '../data/projetos';
+
+// ---------------------------------------------------------------------------
+// Strings de interface. Nenhuma delas é conteúdo de currículo.
+// ---------------------------------------------------------------------------
+
+const UI = {
+  'pt-BR': {
+    heading: 'Projetos',
+    count: (n) => `${n} ${n === 1 ? 'projeto' : 'projetos'}`,
+    more: 'Outros projetos',
+    viewDetails: 'Ver detalhes',
+    hideDetails: 'Fechar',
+    about: 'Sobre o projeto',
+    measured: 'Números medidos',
+    techStack: 'Stack',
+    privateCode: 'Código privado',
+    screenshots: 'capturas',
+    kinds: {
+      repo: 'Repositório',
+      live: 'Ver no ar',
+      article: 'Artigo',
+      doc: 'Documentação',
+      other: 'Abrir',
+    },
+  },
+  'en-US': {
+    heading: 'Projects',
+    count: (n) => `${n} ${n === 1 ? 'project' : 'projects'}`,
+    more: 'More projects',
+    viewDetails: 'View details',
+    hideDetails: 'Close',
+    about: 'About the project',
+    measured: 'Measured numbers',
+    techStack: 'Stack',
+    privateCode: 'private code',
+    screenshots: 'screenshots',
+    kinds: {
+      repo: 'Repository',
+      live: 'Live site',
+      article: 'Article',
+      doc: 'Docs',
+      other: 'Open',
+    },
+  },
+  'zh-CN': {
+    heading: '项目',
+    count: (n) => `${n} 个项目`,
+    more: '其他项目',
+    viewDetails: '查看详情',
+    hideDetails: '关闭',
+    about: '关于项目',
+    measured: '实测数据',
+    techStack: '技术栈',
+    privateCode: '私有代码',
+    screenshots: '截图',
+    kinds: {
+      repo: '代码仓库',
+      live: '在线访问',
+      article: '文章',
+      doc: '文档',
+      other: '打开',
+    },
+  },
+};
+
+const DEFAULT_LANGUAGE = 'pt-BR';
+
+// ---------------------------------------------------------------------------
+// Leitura tolerante do módulo de dados
+// ---------------------------------------------------------------------------
+
+const resolveProjectList = (mod) => {
+  const candidates = [
+    mod && mod.projetos,
+    mod && mod.projects,
+    mod && mod.default && mod.default.projetos,
+    mod && mod.default && mod.default.projects,
+    mod && mod.default,
+  ];
+  for (let i = 0; i < candidates.length; i += 1) {
+    if (Array.isArray(candidates[i])) return candidates[i];
+  }
+  return [];
+};
+
+// Resolve campo traduzível: string, número ou { 'pt-BR': ..., 'en-US': ... }
+const pick = (value, language) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string' || typeof value === 'number') return String(value);
+  if (Array.isArray(value)) return value.map((item) => pick(item, language));
+  if (typeof value === 'object') {
+    if (value[language] !== undefined) return pick(value[language], language);
+    if (value['pt-BR'] !== undefined) return pick(value['pt-BR'], language);
+    if (value['en-US'] !== undefined) return pick(value['en-US'], language);
+    return '';
+  }
+  return '';
+};
+
+// Primeiro campo definido entre vários apelidos possíveis.
+const firstOf = (source, keys) => {
+  for (let i = 0; i < keys.length; i += 1) {
+    const value = source[keys[i]];
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+};
+
+const toArray = (value) => {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+};
+
+// ---------------------------------------------------------------------------
+// Links
+//
+// `tipo: 'privado'` nunca tem url — vira rótulo com cadeado, nunca um <a> que
+// não leva a lugar nenhum. Era um dos pedidos explícitos.
+// ---------------------------------------------------------------------------
+
+const KIND_ALIASES = {
+  repo: ['repo', 'repositorio', 'repositório', 'code', 'codigo', 'código', 'github', 'source', 'fonte', 'oss'],
+  live: ['live', 'site', 'demo', 'app', 'producao', 'produção', 'platform', 'plataforma', 'online'],
+  article: ['article', 'artigo', 'paper', 'post', 'blog', 'publicacao', 'publicação', 'writeup'],
+  doc: ['doc', 'docs', 'documentacao', 'documentação', 'readme', 'arquivo'],
+};
+
+const PRIVATE_ALIASES = ['privado', 'private', 'proprietario', 'proprietário', 'proprietary', 'fechado'];
+
+const kindOf = (rawKind, url = '') => {
+  const key = String(rawKind || '').toLowerCase().trim();
+  if (key) {
+    const found = Object.keys(KIND_ALIASES).find(
+      (name) => KIND_ALIASES[name].indexOf(key) !== -1
+    );
+    if (found) return found;
+  }
+  const href = String(url).toLowerCase();
+  if (href.indexOf('github.com') !== -1 || href.indexOf('gitlab.com') !== -1) return 'repo';
+  if (
+    href.indexOf('medium.com') !== -1 ||
+    href.indexOf('dev.to') !== -1 ||
+    href.indexOf('/blog') !== -1 ||
+    href.indexOf('/artigo') !== -1
+  ) {
+    return 'article';
+  }
+  if (href) return 'live';
+  return 'other';
+};
+
+// Acima disto o rótulo do dado quebra a linha do card: mostra o rótulo curto e
+// guarda o texto completo no title/aria-label e no painel de detalhe.
+const SHORT_LABEL_MAX = 22;
+
+const normalizeLinks = (raw, language, labels) => {
+  const links = [];
+  let privateNote = null;
+
+  toArray(firstOf(raw, ['links', 'ligacoes', 'ligações'])).forEach((entry) => {
+    if (!entry) return;
+
+    if (typeof entry === 'string') {
+      const kind = kindOf('', entry);
+      links.push({
+        url: entry,
+        kind,
+        label: labels.kinds[kind] || labels.kinds.other,
+        title: labels.kinds[kind] || labels.kinds.other,
+      });
+      return;
+    }
+
+    const rawLabel = pick(
+      firstOf(entry, ['rotulo', 'rótulo', 'label', 'texto', 'titulo', 'título', 'title']),
+      language
+    );
+    const rawKind = String(
+      firstOf(entry, ['tipo', 'kind', 'categoria', 'tipoLink']) || ''
+    ).toLowerCase();
+    const url = firstOf(entry, ['url', 'href', 'link', 'endereco', 'endereço']);
+
+    if (PRIVATE_ALIASES.indexOf(rawKind) !== -1 || !url) {
+      // Sem url não existe link: vira o rótulo "código privado".
+      const full = rawLabel || labels.privateCode;
+      privateNote = {
+        full,
+        short: full.length <= SHORT_LABEL_MAX ? full : labels.privateCode,
+      };
+      return;
+    }
+
+    const kind = kindOf(rawKind, url);
+    const fallback = labels.kinds[kind] || labels.kinds.other;
+    const full = rawLabel || fallback;
+    links.push({
+      url: String(url),
+      kind,
+      label: full.length <= SHORT_LABEL_MAX ? full : fallback,
+      title: full,
+    });
+  });
+
+  // Chaves diretas, caso o dado deixe de usar um array `links`.
+  const singles = [
+    { keys: ['repo', 'repositorio', 'repositório', 'github'], kind: 'repo' },
+    { keys: ['site', 'live', 'demo', 'website'], kind: 'live' },
+    { keys: ['artigo', 'article', 'paper', 'post'], kind: 'article' },
+  ];
+  singles.forEach((single) => {
+    const value = firstOf(raw, single.keys);
+    if (typeof value === 'string' && value.indexOf('http') === 0) {
+      links.push({
+        url: value,
+        kind: single.kind,
+        label: labels.kinds[single.kind],
+        title: labels.kinds[single.kind],
+      });
+    }
+  });
+
+  const seen = {};
+  const deduped = links.filter((link) => {
+    if (seen[link.url]) return false;
+    seen[link.url] = true;
+    return true;
+  });
+
+  return { links: deduped, privateNote };
+};
+
+// ---------------------------------------------------------------------------
+// Sigla da capa gerada
+// ---------------------------------------------------------------------------
+
+const STOPWORDS = [
+  'de', 'da', 'do', 'das', 'dos', 'e', 'em', 'para', 'com', 'a', 'o', 'as', 'os',
+  'of', 'the', 'and', 'for', 'in', 'to', 'on',
+];
+
+const monogramOf = (raw, title) => {
+  const given = firstOf(raw, ['sigla', 'monograma', 'monogram']);
+  if (typeof given === 'string' && given.length <= 18) return given.toUpperCase();
+
+  const head = String(title || '')
+    .split(/\s[—–-]\s|:/)[0]
+    .trim();
+  if (!head) return 'PROJ';
+  if (head.length <= 18) return head.toUpperCase();
+
+  const words = head.split(/\s+/);
+  let out = words[0];
+  if (
+    words[1] &&
+    STOPWORDS.indexOf(words[1].toLowerCase()) === -1 &&
+    `${out} ${words[1]}`.length <= 18
+  ) {
+    out = `${out} ${words[1]}`;
+  }
+  return out.toUpperCase();
+};
+
+// ---------------------------------------------------------------------------
+// Normalização de um projeto
+// ---------------------------------------------------------------------------
+
+const normalizeProject = (raw, index, language, labels) => {
+  const title = pick(firstOf(raw, ['titulo', 'título', 'title', 'nome', 'name']), language);
+
+  const coverCandidate = firstOf(raw, ['capa', 'cover']);
+  const coverMeta = coverCandidate && typeof coverCandidate === 'object' ? coverCandidate : null;
+
+  const imageSource = firstOf(raw, ['imagem', 'image', 'thumb', 'screenshot']);
+  const image =
+    typeof imageSource === 'string' && imageSource.length > 0
+      ? {
+          src: imageSource,
+          alt:
+            pick(firstOf(raw, ['imagemAlt', 'imageAlt', 'alt', 'altImagem']), language) ||
+            `${title} — ${labels.screenshots}`,
+        }
+      : null;
+
+  const gallery = toArray(
+    firstOf(raw, ['galeria', 'gallery', 'capturas', 'screenshots', 'imagens'])
+  )
+    .map((shot, i) => {
+      if (!shot) return null;
+      if (typeof shot === 'string') {
+        return { src: shot, alt: `${title} — ${labels.screenshots} ${i + 1}` };
+      }
+      const src = firstOf(shot, ['src', 'url', 'imagem', 'image']);
+      if (typeof src !== 'string') return null;
+      return {
+        src,
+        alt:
+          pick(firstOf(shot, ['alt', 'altText', 'descricao', 'descrição', 'legenda']), language) ||
+          `${title} — ${labels.screenshots} ${i + 1}`,
+      };
+    })
+    .filter(Boolean);
+
+  const stats = toArray(
+    firstOf(raw, ['metricas', 'métricas', 'stats', 'numeros', 'números', 'indicadores'])
+  )
+    .map((stat) => {
+      if (!stat || typeof stat !== 'object') return null;
+      const value = pick(firstOf(stat, ['value', 'valor', 'numero', 'número']), language);
+      if (!value) return null;
+      return {
+        value,
+        label: pick(firstOf(stat, ['label', 'rotulo', 'rótulo', 'nome']), language),
+        icon: firstOf(stat, ['icon', 'icone', 'ícone']) || 'activity',
+      };
+    })
+    .filter(Boolean);
+
+  const bullets = toArray(
+    pick(toArray(firstOf(raw, ['destaques', 'bullets', 'pontos', 'highlights'])), language)
+  )
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+
+  const description = pick(
+    firstOf(raw, [
+      'resumo',
+      'descricao',
+      'descrição',
+      'description',
+      'summary',
+      'extendedDescription',
+    ]),
+    language
+  );
+
+  // `destaque` é booleano no dado atual. Se algum dia virar texto, ele deixa de
+  // ser lido como sinalizador de hierarquia e passa a ser conteúdo.
+  const destaque = raw.destaque;
+  const featured =
+    destaque === true || raw.featured === true || raw.principal === true;
+
+  const highlightAliases = ['highlight', 'ponto', 'pontoChave', 'chave'];
+  if (typeof destaque === 'string') highlightAliases.unshift('destaque');
+
+  const { links, privateNote } = normalizeLinks(raw, language, labels);
+
+  const tech = toArray(
+    pick(toArray(firstOf(raw, ['stack', 'tech', 'tecnologias', 'techs'])), language)
+  ).filter(Boolean);
+
+  return {
+    id: String(firstOf(raw, ['id', 'slug', 'chave']) || `projeto-${index}`),
+    title,
+    subtitle: pick(firstOf(raw, ['subtitulo', 'subtítulo', 'subtitle', 'linha']), language),
+    role: pick(firstOf(raw, ['papel', 'role', 'cargo', 'funcao', 'função']), language),
+    period: pick(firstOf(raw, ['periodo', 'período', 'period', 'data', 'ano']), language),
+    authorship: pick(firstOf(raw, ['autoria', 'authorship', 'commits']), language),
+    description,
+    bullets,
+    highlight: pick(firstOf(raw, highlightAliases), language),
+    impact: pick(firstOf(raw, ['impacto', 'impact', 'resultado']), language),
+    tech,
+    links,
+    privateNote,
+    stats,
+    gallery,
+    image,
+    featured,
+    accent:
+      (coverMeta && (coverMeta.acento || coverMeta.accent)) ||
+      firstOf(raw, ['acento', 'accent', 'cor', 'color']) ||
+      null,
+    icon:
+      (coverMeta && (coverMeta.icone || coverMeta.icon)) ||
+      firstOf(raw, ['icone', 'ícone', 'icon']) ||
+      null,
+    coverLabel: pick(
+      (coverMeta && (coverMeta.etiqueta || coverMeta.label)) ||
+        firstOf(raw, ['etiqueta', 'coverLabel']),
+      language
+    ),
+    monogram: monogramOf(raw, title),
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Seção
+// ---------------------------------------------------------------------------
 
 const ProjectsSection = ({ language }) => {
-  const [expandedProject, setExpandedProject] = useState(null);
+  const lang = UI[language] ? language : DEFAULT_LANGUAGE;
+  const labels = UI[lang];
+  const [expandedId, setExpandedId] = useState(null);
 
-  const translations = {
-    'pt-BR': {
-      featuredProjects: 'Projetos em Destaque',
-      viewDetails: 'Ver detalhes',
-      aboutProject: 'Sobre o projeto',
-      techStack: 'Stack Tecnológico',
-      viewSourceCode: 'Ver código-fonte',
-      viewLiveProject: 'Ver projeto ao vivo',
-      highlights: 'Destaques',
-      numberOfUsers: 'Número de usuários',
-      dataCollected: 'Dados coletados',
-      chipsManufactured: 'Chips Fabricados',
-      messagesPerDay: 'Mensagens/dia',
-      accessesGenerated: 'Acessos gerados',
-      conversionRate: 'Taxa de conversão'
-    },
-    'en-US': {
-      featuredProjects: 'Featured Projects',
-      viewDetails: 'View details',
-      aboutProject: 'About the project',
-      techStack: 'Tech Stack',
-      viewSourceCode: 'View source code',
-      viewLiveProject: 'View live project',
-      highlights: 'Highlights',
-      numberOfUsers: 'Number of users',
-      dataCollected: 'Data collected',
-      chipsManufactured: 'Chips Manufactured',
-      messagesPerDay: 'Messages/day',
-      accessesGenerated: 'Accesses generated',
-      conversionRate: 'Conversion rate'
-    },
-    'zh-CN': {
-      featuredProjects: '精选项目',
-      viewDetails: '查看详情',
-      aboutProject: '关于项目',
-      techStack: '技术栈',
-      viewSourceCode: '查看源代码',
-      viewLiveProject: '查看实时项目',
-      highlights: '亮点',
-      numberOfUsers: '用户数量',
-      dataCollected: '数据收集',
-      chipsManufactured: '芯片制造',
-      messagesPerDay: '消息/天',
-      accessesGenerated: '访问生成',
-      conversionRate: '转换率'
+  const projects = useMemo(() => {
+    const list = resolveProjectList(projectData)
+      .filter(Boolean)
+      .map((raw, index) => normalizeProject(raw, index, lang, labels))
+      .filter((project) => project.title);
+
+    // Se o dado não marcar destaque em ninguém, os três primeiros assumem o
+    // papel — a grade nunca cai numa fileira plana sem hierarquia.
+    if (list.length > 0 && !list.some((project) => project.featured)) {
+      return list.map((project, index) => ({ ...project, featured: index < 3 }));
     }
-  };
+    return list;
+  }, [lang, labels]);
 
-  const t = translations[language] || translations['pt-BR'];
+  if (projects.length === 0) return null;
 
-  const projects = [
-    {
-      title: "Harvester_v1",
-      description: "Aplicativo de telemetria para tratores com integração ESP32, desenvolvido em JavaScript e C++ utilizando WebSocket para comunicação em tempo real te telemetria e monitoramento de dados.",
-      extendedDescription: "Desenvolvido para otimizar operações agrícolas, o Harvester_v1 é uma solução IoT completa que coleta dados em tempo real de sensores instalados em tratores. A solução usa ESP32 como microcontrolador principal, conectando-se a um servidor WebSocket para transmissão contínua de dados críticos como posição GPS, consumo de combustível, temperatura do motor e status de implementos.",
-      icon: <Cpu className="w-6 h-6" />,
-      tech: ["JavaScript", "C++", "API REST", "ESP32", "Expo", "React-native", "WebSocket"],
-      highlight: "Monitoramento em tempo real de dados de Telemetria",
-      impact: "Telemetria de frota e apontamento offline-first para operações de campo em agricultura de precisão.",
-      image: "/Portfolio/assets/harvester-dashboard.jpg",
-      
-      stats: [
-        { label: t.numberOfUsers, value: "429", icon: <Activity /> },
-        { label: t.dataCollected, value: "4M+", icon: <BarChart2 /> },
-        { label: t.chipsManufactured, value: "500+", icon: <Clock /> }
-      ],
-      gallery: [
-        "/Portfolio/assets/harvester-dashboard.jpg",
-        "/Portfolio/assets/harvester-mobile.jpg",
-        "/Portfolio/assets/harvester-hardware.jpg"
-      ],
-      translations: {
-        'pt-BR': {
-          description: "Aplicativo de telemetria para tratores com integração ESP32, desenvolvido em JavaScript e C++ utilizando WebSocket para comunicação em tempo real te telemetria e monitoramento de dados.",
-          extendedDescription: "Desenvolvido para otimizar operações agrícolas, o Harvester_v1 é uma solução IoT completa que coleta dados em tempo real de sensores instalados em tratores. A solução usa ESP32 como microcontrolador principal, conectando-se a um servidor WebSocket para transmissão contínua de dados críticos como posição GPS, consumo de combustível, temperatura do motor e status de implementos.",
-          highlight: "Monitoramento em tempo real de dados de Telemetria",
-          impact: "Telemetria de frota e apontamento offline-first para operações de campo em agricultura de precisão."
-        },
-        'en-US': {
-          description: "Telemetry application for tractors with ESP32 integration, developed in JavaScript and C++ using WebSocket for real-time communication of telemetry and data monitoring.",
-          extendedDescription: "Developed to optimize agricultural operations, Harvester_v1 is a complete IoT solution that collects real-time data from sensors installed on tractors. The solution uses ESP32 as the main microcontroller, connecting to a WebSocket server for continuous transmission of critical data such as GPS position, fuel consumption, engine temperature and implement status.",
-          highlight: "Real-time monitoring of Telemetry data",
-          impact: "Data collection from +400 Tractors in operation, increasing efficiency and productivity in precision agriculture."
-        },
-        'zh-CN': {
-          description: "用于拖拉机的遥测应用程序，集成了ESP32，使用JavaScript和C++开发，使用WebSocket进行遥测和数据监控的实时通信。",
-          extendedDescription: "Harvester_v1旨在优化农业运营，是一个完整的物联网解决方案，可从安装在拖拉机上的传感器收集实时数据。该解决方案使用ESP32作为主微控制器，连接到WebSocket服务器以连续传输关键数据，如GPS位置、燃料消耗、发动机温度和工具状态。",
-          highlight: "遥测数据的实时监控",
-          impact: "从+400台运行中的拖拉机收集数据，提高精准农业的效率和生产力。"
-        }
-      }
-    },
-    {
-      title: "Viper Backend",
-      description: "Colaboração no desenvolvimento da infraestrutura backend para plataforma de jogos online.",
-      extendedDescription: "Viperpro é um projeto de código aberto desenvolvido em PHP utilizando o Framework Laravel 10 e Vue 3, com várias integrações com diferentes provedores de iGaming. Este projeto é destinado para fins de estudo. Use-o com responsabilidade e consciência, e não o utilize para fins fraudulentos.",
-      icon: <Database className="w-6 h-6" />,
-      tech: ["PHP", "Laravel", "Node.js", "Vue3", "Prisma", "Docker", "SQLite", "Redis"],
-      highlight: "Sistema de transações em tempo real",
-      impact: "Processamento de +1M de transações/dia",
-      image: "/Portfolio/assets/casino-architecture.jpeg",
-      github: "https://github.com/Daviqr1",
-      stats: [
-        { label: "NaN", value: "NaN%", icon: <Activity /> },
-        { label: "NaN", value: "NaN", icon: <BarChart2 /> },
-        { label: "NaN", value: "NaNkk", icon: <Users /> }
-      ],
-      gallery: [
-        "/Portfolio/assets/casino-admin.jpeg",
-        "/Portfolio/assets/casino-architecture.jpeg",
-        "/Portfolio/assets/casino-monitoring.jpeg"
-      ],
-      translations: {
-        'pt-BR': {
-          description: "Colaboração no desenvolvimento da infraestrutura backend para plataforma de jogos online.",
-          extendedDescription: "Viperpro é um projeto de código aberto desenvolvido em PHP utilizando o Framework Laravel 10 e Vue 3, com várias integrações com diferentes provedores de iGaming. Este projeto é destinado para fins de estudo. Use-o com responsabilidade e consciência, e não o utilize para fins fraudulentos.",
-          highlight: "Sistema de transações em tempo real",
-          impact: "Processamento de +1M de transações/dia"
-        },
-        'en-US': {
-          description: "Collaboration in the development of the backend infrastructure for an online gaming platform.",
-          extendedDescription: "Viperpro is an open-source project developed in PHP using the Laravel 10 and Vue 3 Framework, with several integrations with different iGaming providers. This project is intended for study purposes. Use it responsibly and consciously, and do not use it for fraudulent purposes.",
-          highlight: "Real-time transaction system",
-          impact: "Processing of +1M transactions/day"
-        },
-        'zh-CN': {
-          description: "合作开发在线游戏平台的后端基础设施。",
-          extendedDescription: "Viperpro是一个使用Laravel 10和Vue 3框架在PHP中开发的开源项目，与不同的iGaming提供商有多个集成。这个项目是为学习目的而设计的。负责任和有意识地使用它，不要将其用于欺诈目的。",
-          highlight: "实时交易系统",
-          impact: "处理超过100万次交易/天"
-        }
-      }
-    },
-    {
-      title: "Super Promos Bot",
-      description: "Bot para Telegram que automatiza o disparo de promoções com links de afiliados.",
-      extendedDescription: "Desenvolvido para otimizar campanhas de marketing de afiliados, o Super Promos Bot monitora automaticamente sites de e-commerce em busca de promoções, formatando e distribuindo-as para grupos de Telegram. O sistema utiliza web scraping avançado com rotação de proxies para evitar bloqueios, análise de dados para identificar as melhores ofertas e um algoritmo de NLP para gerar descrições atraentes para cada promoção.",
-      icon: <MessageSquare className="w-6 h-6" />,
-      tech: ["Python", "Telegram API", "BeautifulSoup", "NLTK", "Selenium"],
-      highlight: "Automação inteligente de marketing",
-      impact: "Automação de campanhas e integração de catálogo",
-      image: "/Portfolio/assets/telegram-dashboard.png",
-      github: "https://github.com/Daviqr1",
-      live: "https://t.me/PromoCentralBr",
-      stats: [
-        { label: t.messagesPerDay, value: "2.5k", icon: <Activity /> },
-        { label: t.accessesGenerated, value: "15k/dia", icon: <Users /> },
-        { label: t.conversionRate, value: "4.8%", icon: <BarChart2 /> }
-      ],
-      gallery: [
-        "/Portfolio/assets/telegram-dashboard.png",
-        "/Portfolio/assets/telegram-analytics.jpeg",
-        "/Portfolio/assets/telegram-setup.jpeg"
-      ],
-      translations: {
-        'pt-BR': {
-          description: "Bot para Telegram que automatiza o disparo de promoções com links de afiliados.",
-          extendedDescription: "Desenvolvido para otimizar campanhas de marketing de afiliados, o Super Promos Bot monitora automaticamente sites de e-commerce em busca de promoções, formatando e distribuindo-as para grupos de Telegram. O sistema utiliza web scraping avançado com rotação de proxies para evitar bloqueios, análise de dados para identificar as melhores ofertas e um algoritmo de NLP para gerar descrições atraentes para cada promoção.",
-          highlight: "Automação inteligente de marketing",
-          impact: "Automação de campanhas e integração de catálogo"
-        },
-        'en-US': {
-          description: "Bot for Telegram that automates the sending of promotions with affiliate links.",
-          extendedDescription: "Developed to optimize affiliate marketing campaigns, the Super Promos Bot automatically monitors e-commerce sites for promotions, formatting and distributing them to Telegram groups. The system uses advanced web scraping with proxy rotation to avoid blocking, data analysis to identify the best offers, and an NLP algorithm to generate attractive descriptions for each promotion.",
-          highlight: "Intelligent marketing automation",
-          impact: "ROI of 300% in campaigns"
-        },
-        'zh-CN': {
-          description: "用于Telegram的Bot，可自动发送带有联盟链接的促销活动。",
-          extendedDescription: "Super Promos Bot旨在优化联盟营销活动，自动监控电子商务网站的促销活动，格式化并将其分发到Telegram群组。该系统使用高级网络抓取与代理轮换，以避免阻止，数据分析以识别最佳优惠，以及NLP算法以为每个促销活动生成有吸引力的描述。",
-          highlight: "智能营销自动化",
-          impact: "活动投资回报率达300%"
-        }
-      }
-    }
-  ];
+  const featured = projects.filter((project) => project.featured);
+  const secondary = projects.filter((project) => !project.featured);
 
-  const handleCardClick = (index) => {
-    if (expandedProject === index) {
-      setExpandedProject(null);
-    } else {
-      setExpandedProject(index);
-    }
-  };
+  const toggle = (id) => setExpandedId((current) => (current === id ? null : id));
 
   return (
-    <section id="projetos" className="py-20 relative overflow-hidden">
+    <section id="projetos" className="relative overflow-hidden py-20">
       <div className="absolute inset-0 bg-gradient-to-b from-gray-900/0 via-emerald-900/10 to-gray-900/0" />
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-48 h-48 bg-emerald-600/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-10 top-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-10 right-10 h-48 w-48 rounded-full bg-emerald-600/10 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400/5 blur-3xl" />
       </div>
-      <div className="container mx-auto px-6 relative">
-        <h2 className="text-4xl font-bold mb-16 flex items-center">
-          <Code2 className="mr-2 text-emerald-400" />
-          {t.featuredProjects}
-          <div className="ml-4 h-px flex-grow bg-gradient-to-r from-emerald-400/50 to-transparent" />
-        </h2>
-        
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => {
-            const localizedProject = project.translations[language] || project.translations['pt-BR'];
 
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ 
-                  opacity: expandedProject === null || expandedProject === index ? 1 : 0.4,
-                  y: 0,
-                  scale: expandedProject === index ? 1 : 1
-                }}
-                transition={{ duration: 0.3 }}
-                className={`group relative bg-gray-900/80 backdrop-blur-sm rounded-xl border border-emerald-500/10 hover:border-emerald-500/30 overflow-hidden ${
-                  expandedProject === index ? 'lg:col-span-3 lg:row-span-2' : ''
-                }`}
-              >
-                {/* Regular Card Content */}
-                <div 
-                  className={`relative ${expandedProject === index ? 'hidden' : 'block'}`}
-                  onClick={() => handleCardClick(index)}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="p-6">
-                    <div className="relative">
-                      <img 
-                        src={project.image} 
-                        alt={project.title}
-                        className="w-full h-48 object-cover rounded-lg mb-6"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent rounded-lg" />
-                    </div>
-                    <div className="text-emerald-400 mb-4 flex items-center">
-                      {project.icon}
-                      <span className="ml-2 font-semibold">{project.title}</span>
-                    </div>
-                    <p className="text-gray-300 mb-4">{localizedProject.description}</p>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-emerald-400">
-                        <Zap className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{localizedProject.highlight}</span>
-                      </div>
-                      <div className="flex items-center text-emerald-400">
-                        <Award className="w-4 h-4 mr-2" />
-                        <span className="text-sm">{localizedProject.impact}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {project.tech.slice(0, 4).map((tech, i) => (
-                        <span
-                          key={i}
-                          className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-sm border border-emerald-500/20"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                      {project.tech.length > 4 && (
-                        <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-sm border border-emerald-500/20">
-                          +{project.tech.length - 4}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {/* Call to action */}
-                    <div className="mt-6 flex justify-center">
-                      <button 
-                        className="flex items-center text-emerald-400 hover:text-emerald-300 transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCardClick(index);
-                        }}
-                      >
-                        <span className="mr-2">{t.viewDetails}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Expanded Card Content */}
-                <AnimatePresence>
-                  {expandedProject === index && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="relative p-6 lg:p-8"
-                    >
-                      <button 
-                        className="absolute top-4 right-4 text-gray-400 hover:text-white bg-gray-800/50 rounded-full p-2"
-                        onClick={() => setExpandedProject(null)}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                      
-                      {/* Header with project title */}
-                      <div className="flex items-center mb-6">
-                        {project.icon}
-                        <h3 className="text-2xl font-bold ml-2 text-emerald-400">{project.title}</h3>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main content */}
-                        <div className="lg:col-span-2">
-                          {/* Image gallery */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            {project.gallery?.map((img, i) => (
-                              <div key={i} className={`rounded-lg overflow-hidden ${i === 0 ? 'md:col-span-3' : ''}`}>
-                                <img 
-                                  src={img} 
-                                  alt={`${project.title} screenshot ${i+1}`}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          
-                          {/* Extended description */}
-                          <div className="bg-gray-800/50 rounded-lg p-6 mb-6">
-                            <h4 className="text-lg font-semibold mb-3">{t.aboutProject}</h4>
-                            <p className="text-gray-300">{localizedProject.extendedDescription}</p>
-                          </div>
-                          
-                          {/* Key metrics */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                            {project.stats?.map((stat, i) => (
-                              <div key={i} className="bg-gray-800/30 rounded-lg p-4 flex flex-col items-center justify-center text-center">
-                                <div className="bg-emerald-500/20 p-3 rounded-full mb-2">
-                                  {stat.icon}
-                                </div>
-                                <div className="text-2xl font-bold text-emerald-400">{stat.value}</div>
-                                <div className="text-xs text-gray-400">{stat.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Sidebar */}
-                        <div>
-                          {/* Tech stack with visual indicators */}
-                          <div className="bg-gray-800/50 rounded-lg p-6 mb-6">
-                            <h4 className="flex items-center text-lg font-semibold mb-4">
-                              <Code className="w-5 h-5 mr-2 text-emerald-400" />
-                              {t.techStack}
-                            </h4>
-                            <div className="space-y-2">
-                              {project.tech.map((tech, i) => (
-                                <div key={i} className="flex items-center">
-                                  <div className="w-1 h-1 bg-emerald-400 rounded-full mr-2"></div>
-                                  <span>{tech}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          {/* Action buttons */}
-                          <div className="space-y-3">
-                            {project.github && (
-                              <a 
-                                href={project.github}
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="bg-gray-800 hover:bg-gray-700 text-white rounded-lg py-3 px-4 flex items-center justify-center w-full transition-colors"
-                              >
-                                <Github className="mr-2" />
-                                <span>{t.viewSourceCode}</span>
-                              </a>
-                            )}
-                            
-                            {project.live && (
-                              <a 
-                                href={project.live}
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg py-3 px-4 flex items-center justify-center w-full transition-colors"
-                              >
-                                <ExternalLink className="mr-2" />
-                                <span>{t.viewLiveProject}</span>
-                              </a>
-                            )}
-                          </div>
-                          
-                          {/* Key features list */}
-                          <div className="mt-6 bg-gray-800/30 rounded-lg p-4">
-                            <h4 className="text-sm uppercase text-gray-400 mb-2">{t.highlights}</h4>
-                            <div className="space-y-2">
-                              <div className="flex items-start">
-                                <Zap className="w-4 h-4 mr-2 text-emerald-400 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm text-gray-300">{localizedProject.highlight}</span>
-                              </div>
-                              <div className="flex items-start">
-                                <Award className="w-4 h-4 mr-2 text-emerald-400 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm text-gray-300">{localizedProject.impact}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
+      <div className="container relative mx-auto px-6">
+        <header className="mb-10 flex flex-wrap items-center gap-x-4 gap-y-3">
+          <h2 className="flex items-center text-3xl font-bold text-gray-50 sm:text-4xl">
+            <Code2 className="mr-3 h-7 w-7 text-emerald-400" strokeWidth={1.75} />
+            {labels.heading}
+          </h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-emerald-400/40 to-transparent" />
+          <span className="inline-flex items-center gap-1.5 rounded-sm border border-emerald-400/20 bg-emerald-400/5 px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.14em] text-emerald-300/90">
+            <FolderGit2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+            {labels.count(projects.length)}
+          </span>
+        </header>
+
+        {featured.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 0.45 }}
+            className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
+          >
+            {featured.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                variant="featured"
+                index={index}
+                expanded={expandedId === project.id}
+                onToggle={() => toggle(project.id)}
+                labels={labels}
+              />
+            ))}
+          </motion.div>
+        )}
+
+        {secondary.length > 0 && (
+          <>
+            <div className="mb-5 mt-12 flex items-center gap-4">
+              <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-gray-500">
+                {labels.more}
+              </span>
+              <div className="h-px flex-1 bg-white/[0.07]" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {secondary.map((project, index) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  variant="compact"
+                  index={featured.length + index}
+                  expanded={expandedId === project.id}
+                  onToggle={() => toggle(project.id)}
+                  labels={labels}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

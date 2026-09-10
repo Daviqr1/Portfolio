@@ -343,21 +343,6 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                         </div>
                       </a>
                       
-                      {/* Agendamento automático */}
-                      <a 
-                        href="https://calendly.com/daviqr1" 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-4 bg-purple-600/10 hover:bg-purple-600/15 border border-purple-600/20 rounded-lg transition-all group"
-                      >
-                        <div className="h-12 w-12 rounded-full bg-purple-600/20 flex items-center justify-center mr-4">
-                          <Calendar className="h-6 w-6 text-purple-400 group-hover:scale-110 transition-transform" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-white">{t.scheduleCall}</h4>
-                          <p className="text-sm text-gray-300">{t.availableSlots}</p>
-                        </div>
-                      </a>
                     </div>
                   </div>
                   
@@ -455,16 +440,6 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                             <span className="text-sm text-white">{t.updatedResume}</span>
                           </a>
                           
-                          <a 
-                            href={getPublicUrl("portfolio_daviqr1.pdf")} 
-                            target="_blank" 
-                            className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
-                          >
-                            <div className="mr-3 text-blue-400">
-                              <Bookmark className="h-5 w-5" />
-                            </div>
-                            <span className="text-sm text-white">{t.detailedPortfolio}</span>
-                          </a>
                         </div>
                       </div>
                     </div>

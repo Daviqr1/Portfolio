@@ -105,19 +105,110 @@
   z-index: 7;
 }
 
+/* ─────────────────────────── Hero ───────────────────────────
+   Ordem de empilhamento resolvida em um lugar só. O bug: o <canvas> do
+   astronauta chegava com `z-10` (utilitário do Tailwind) e este bloco com
+   z-index 5 — o astronauta passava por cima do nome e do subtítulo. Agora a
+   escala é explícita: cenário 2–7, astronauta 8, texto 20. Ninguém mais
+   depende de ordem de folha para ganhar.
+   Alinhamento à esquerda em todas as larguras: o <p> do Position.jsx é
+   `absolute left-0`, então no layout centrado antigo ele já saía desalinhado
+   do nome. */
 .parallax__content {
   --parallax-speed: 210;
-  z-index: 5;
+  z-index: 20;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
 }
 
-@media (min-width: 1024px) {
-  .parallax__content {
-    flex-direction: row;
-    text-align: left;
+/* Área própria do 3D. O z-index tem que estar aqui e não numa classe do
+   Tailwind no JSX: utilitário e classe de componente têm a mesma
+   especificidade, e quem vence passa a ser a ordem de geração da folha. */
+.hero__spaceman {
+  z-index: 8;
+}
+
+/* O nome é a primeira coisa que se lê, então ele deixa de ser uma escada de
+   seis breakpoints e vira escala fluida: 48px no celular, 120px no desktop,
+   contínuo no meio. Peso 700 (era 500), tracking negativo e text-wrap:balance
+   para "Davi / Rezende" quebrar equilibrado quando não couber em uma linha. */
+.hero__name {
+  font-size: clamp(3rem, 9vw, 7.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-wrap: balance;
+  background-image: linear-gradient(104deg, #ffffff 0%, #ffffff 44%, #6ee7b7 78%, #34d399 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  /* text-shadow não serve aqui: com background-clip:text a sombra é pintada
+     DEPOIS do gradiente recortado e borra o próprio glifo. drop-shadow age
+     sobre o resultado rasterizado — é ele que dá o contorno escuro que separa
+     o nome do astronauta em qualquer frame da animação. */
+  filter:
+    drop-shadow(0 2px 1px rgba(2, 6, 23, 0.95))
+    drop-shadow(0 0 22px rgba(2, 6, 23, 0.92))
+    drop-shadow(0 0 64px rgba(16, 185, 129, 0.28));
+}
+
+/* O <p> do Position.jsx carrega as próprias classes do Tailwind
+   (text-[16px], text-gray-300, font-normal). Um seletor classe+elemento
+   tem especificidade (0,1,1) contra (0,1,0) do utilitário, então vence sem
+   !important e sem depender de ordem. Só o que não é `transform` é
+   sobrescrito: o translate-y é o mecanismo do rodízio e fica intacto. */
+/* A altura é 2rem e não pode crescer: o item que está entrando fica em
+   `translate-y-8` (= 2rem) e é o overflow:hidden do contêiner que o esconde.
+   Qualquer altura maior do que 2rem deixa aparecer uma fatia cortada do
+   próximo cargo — e com a transição de opacidade abaixo isso ficaria visível
+   por meio segundo a cada rodízio. Daí o teto de 1.5rem na fonte: 1.5 × 1.2
+   de entrelinha = 1.8rem, ainda dentro dos 2rem. */
+.hero__role > div {
+  height: 2rem;
+  margin: 0.85rem 0 0;
+}
+
+.hero__role p {
+  font-size: clamp(1.05rem, 2.4vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: #ecfdf5;
+  text-shadow:
+    0 1px 2px rgba(2, 6, 23, 0.95),
+    0 0 16px rgba(2, 6, 23, 0.85),
+    0 0 40px rgba(2, 6, 23, 0.6);
+  /* o original só transicionava transform, então a opacidade piscava */
+  transition: transform 0.5s ease, opacity 0.35s ease;
+}
+
+/* Terceira linha de defesa da legibilidade, depois da separação de colunas e
+   do drop-shadow: um halo escuro radial saindo de trás do texto. Sem borda
+   dura — o alfa chega a zero antes do fim da caixa, então não lê como
+   retângulo. z-index -1 o mantém atrás do texto mas ainda dentro do contexto
+   de empilhamento do .parallax__content (que tem will-change), ou seja,
+   à frente do canvas. */
+.hero__copy::before {
+  content: "";
+  position: absolute;
+  inset: -20% -32% -24% -36%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    58% 54% at 26% 46%,
+    rgba(2, 6, 23, 0.86) 0%,
+    rgba(2, 6, 23, 0.7) 38%,
+    rgba(2, 6, 23, 0.32) 62%,
+    rgba(2, 6, 23, 0) 78%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__role p {
+    transition: none;
   }
 }
 

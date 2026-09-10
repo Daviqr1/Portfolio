@@ -1,15 +1,16 @@
 import React from 'react';
 import { FileCode, Code, Database, Terminal, Coffee, Download, Server, PenTool,Dumbbell } from 'lucide-react';
+import { getPublicUrl } from '../utils';
 
 const AboutSection = ({ language = 'pt-BR' }) => {
   const technologies = [
-    { name: 'Laravel', icon: '/Portfolio/assets/Laravel.svg' },
-    { name: 'React', icon: '/Portfolio/assets/React.svg' },
-    { name: 'MySQL', icon: '/Portfolio/assets/Mysql.svg' },
-    { name: 'Tailwind', icon: '/Portfolio/assets/Tailwind.svg' },
-    { name: 'Python', icon: '/Portfolio/assets/Python.svg' },
-    { name: 'PHP', icon: '/Portfolio/assets/Php.svg' },
-    { name: 'Vite', icon: '/Portfolio/assets/Vitejs.svg' }
+    { name: 'Laravel', icon: getPublicUrl("assets/Laravel.svg") },
+    { name: 'React', icon: getPublicUrl("assets/React.svg") },
+    { name: 'MySQL', icon: getPublicUrl("assets/Mysql.svg") },
+    { name: 'Tailwind', icon: getPublicUrl("assets/Tailwind.svg") },
+    { name: 'Python', icon: getPublicUrl("assets/Python.svg") },
+    { name: 'PHP', icon: getPublicUrl("assets/Php.svg") },
+    { name: 'Vite', icon: getPublicUrl("assets/Vitejs.svg") }
   ];
 
   const translations = {
@@ -142,7 +143,7 @@ const AboutSection = ({ language = 'pt-BR' }) => {
             
             {/* Download resume button */}
             <a 
-              href="/images/CV Dai Rezende Software Engineer En_us.pdf" 
+              href={getPublicUrl("cv_daviqr1_pt.pdf")}
               download
               className="mt-6 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg flex items-center justify-center transform hover:scale-105 transition-all w-full"
             >

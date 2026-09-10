@@ -38,66 +38,75 @@ const SpacemanCanvas = ({ scrollContainer }) => {
   const [position, setPosition] = useState([0.2, -0.7, 0]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollContainer || !scrollContainer.current) {
-        // Usar window.scrollY se scrollContainer não estiver disponível
-        const scrollTop = window.scrollY;
-        const rotationXValue = scrollTop * -0.0006;
-        const rotationYValue = scrollTop * -0.00075;
-        setRotationX(rotationXValue);
-        setRotationY(rotationYValue);
-        return;
-      }
-      
-      const scrollTop = scrollContainer.current.scrollTop;
-      const rotationXValue = scrollTop * -0.0006;
-      const rotationYValue = scrollTop * -0.00075;
-      setRotationX(rotationXValue);
-      setRotationY(rotationYValue);
+    // O <main> recebido em scrollContainer não é um contêiner de rolagem: quem
+    // rola é a janela. Ler .scrollTop dele devolvia 0 para sempre e o
+    // astronauta nunca girava. Só usamos o elemento se ele de fato rolar.
+    const lerScrollTop = () => {
+      const el = scrollContainer && scrollContainer.current;
+      if (el && el.scrollHeight > el.clientHeight + 1) return el.scrollTop;
+      return window.scrollY || document.documentElement.scrollTop || 0;
     };
 
+    let frame = null;
+    const handleScroll = () => {
+      // Sem o rAF, cada evento de scroll disparava dois setState e um
+      // re-render do Canvas inteiro.
+      if (frame !== null) return;
+      frame = requestAnimationFrame(() => {
+        frame = null;
+        const scrollTop = lerScrollTop();
+        setRotationX(scrollTop * -0.0006);
+        setRotationY(scrollTop * -0.00075);
+      });
+    };
+
+    // A FOV vertical é fixa, então o modelo é sempre uma fração da ALTURA do
+    // canvas — mudar a largura só corta nas laterais. Como o Hero passou a dar
+    // ao astronauta um contêiner próprio, as escalas seguem esse contêiner:
+    // abaixo de 1024px ele é uma faixa baixa e larga (embaixo do texto), e o
+    // modelo precisa de escala alta para não sumir; de 1024px para cima é a
+    // coluna direita inteira, alta, e a escala volta a ser pequena.
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setScale([1, 1, 1]);
-        setPosition([0.2, -0.1, 0]);
-      } else if (window.innerWidth < 1024) {
-        setScale([1.33, 1.33, 1.33]);
-        setPosition([0.2, -0.3, 0]);
-      } else if (window.innerWidth < 1280) {
-        setScale([1.5, 1.5, 1.5]);
-        setPosition([0.2, -0.4, 0]);
-      } else if (window.innerWidth < 1536) {
-        setScale([1.66, 1.66, 1.66]);
-        setPosition([0.2, -0.5, 0]);
+      const w = window.innerWidth;
+      if (w < 768) {
+        setScale([2.75, 2.75, 2.75]);
+        setPosition([0, -0.35, 0]);
+      } else if (w < 1024) {
+        setScale([2.45, 2.45, 2.45]);
+        setPosition([0, -0.15, 0]);
+      } else if (w < 1280) {
+        setScale([1.3, 1.3, 1.3]);
+        setPosition([0, -0.3, 0]);
+      } else if (w < 1536) {
+        setScale([1.45, 1.45, 1.45]);
+        setPosition([0, -0.4, 0]);
       } else {
-        setScale([2, 2, 2]);
-        setPosition([0.2, -0.7, 0]);
+        setScale([1.7, 1.7, 1.7]);
+        setPosition([0, -0.55, 0]);
       }
     };
 
     handleResize();
-    
-    // Garantir que o scroll funcione mesmo sem scrollContainer
-    if (scrollContainer && scrollContainer.current) {
-      scrollContainer.current.addEventListener("scroll", handleScroll);
-    } else {
-      window.addEventListener("scroll", handleScroll);
-    }
-    
+    handleScroll();
+
+    const el = scrollContainer && scrollContainer.current;
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    if (el) el.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
 
     return () => {
-      if (scrollContainer && scrollContainer.current) {
-        scrollContainer.current.removeEventListener("scroll", handleScroll);
-      } else {
-        window.removeEventListener("scroll", handleScroll);
-      }
+      if (frame !== null) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", handleScroll);
+      if (el) el.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
   }, [scrollContainer]);
 
   return (
-    <Canvas className="w-full h-screen bg-transparent z-10" camera={{ near: 0.1, far: 1000 }}>
+    // h-full (não h-screen): o canvas agora preenche o contêiner que o Hero
+    // reserva para ele, e não a altura da janela. Sem z-index aqui — a ordem
+    // de empilhamento do hero está toda no index.css.
+    <Canvas className="w-full h-full bg-transparent" camera={{ near: 0.1, far: 1000 }}>
       <Suspense fallback={<CanvasLoader />}>
         <directionalLight position={[1, 1, 1]} intensity={2} />
         <ambientLight intensity={0.5} />

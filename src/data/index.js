@@ -445,10 +445,10 @@ export const projects = [
   },
 
   {
-    id: "orbya",
-    title: "Orbya — SaaS B2B multi-tenant com isolamento no banco",
+    id: "plataforma-b2b",
+    title: "Plataforma B2B de Customer Intelligence — SaaS B2B multi-tenant com isolamento no banco",
     icon: "database",
-    role: t3("Lead / Founding Engineer", "Lead / Founding Engineer"),
+    role: t3("Engenheiro de Software Sênior", "Engenheiro de Software Sênior"),
     period: "04/2026 – 07/2026",
     image: null,
     cover: { icon: "database", accent: "cyan", label: "RLS · pg_notify · evals" },
@@ -753,7 +753,7 @@ export const experience = [
 
   {
     id: "brametal",
-    company: "Brametal / SAUPE Engenharia",
+    company: "Autônomo — prestação de serviço a cliente industrial",
     shortName: "Brametal",
     role: t3(
       "Engenheiro de software (contrato) — supervisório SCADA",
@@ -796,10 +796,10 @@ export const experience = [
   },
 
   {
-    id: "orbya",
-    company: "Orbya",
-    shortName: "Orbya",
-    role: t3("Lead / Founding Engineer", "Lead / Founding Engineer"),
+    id: "plataforma-b2b",
+    company: "Autônomo",
+    shortName: "Plataforma B2B de Customer Intelligence",
+    role: t3("Engenheiro de Software Sênior", "Engenheiro de Software Sênior"),
     period: "04/2026 – 07/2026",
     location: t3("Remoto", "Remote"),
     duration: t3("3,5 meses", "3.5 months"),
@@ -1072,9 +1072,9 @@ export const journey = [
     position: { x: "48%", y: "58%" },
   },
   {
-    id: "orbya",
+    id: "plataforma-b2b",
     year: "2026",
-    title: t3("Orbya — Lead / Founding Engineer", "Orbya — Lead / Founding Engineer"),
+    title: t3("Plataforma B2B de Customer Intelligence — Lead / Founding Engineer", "Plataforma B2B de Customer Intelligence — Lead / Founding Engineer"),
     icon: "rocket",
     description: t3(
       "SaaS B2B multi-tenant do zero: 398 de 428 commits em 3,5 meses, com isolamento defendido no banco e gate determinístico contra alucinação de LLM.",
@@ -1169,13 +1169,13 @@ export const contact = {
       id: "pt",
       language: "pt-BR",
       label: t3("Currículo (português)", "Résumé (Portuguese)"),
-      file: "cv/davi-rezende-cv-pt.pdf",
+      file: "cv_daviqr1_pt.pdf",
     },
     {
       id: "en",
       language: "en-US",
       label: t3("Currículo (inglês)", "Résumé (English)"),
-      file: "cv/davi-rezende-cv-en.pdf",
+      file: "cv_daviqr1_en.pdf",
     },
   ],
 
@@ -1246,7 +1246,7 @@ const experiences = [
   },
   {
     title: "Engenheiro de software (contrato)",
-    company_name: "Brametal / SAUPE",
+    company_name: "Autônomo",
     date: "12/2025 – atual",
     details: [
       `${em("368 de 368 commits")} em 9 meses: supervisório SCADA que comanda 52 inversores e lê 56 células de carga em ensaios de torres de 80 metros.`,
@@ -1255,8 +1255,8 @@ const experiences = [
     ],
   },
   {
-    title: "Lead / Founding Engineer",
-    company_name: "Orbya",
+    title: "Engenheiro de Software Sênior",
+    company_name: "Plataforma B2B de Customer Intelligence",
     date: "04/2026 – 07/2026",
     details: [
       `${em("398 de 428 commits (93%)")}: ~100 mil linhas de produção em 3,5 meses.`,

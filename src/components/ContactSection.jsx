@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getPublicUrl } from '../utils';
 import { MessageSquare, Mail, Send, Linkedin, Phone, FileText, Calendar, Github, Globe, Bookmark, Clock, MapPin, Briefcase, Compass } from 'lucide-react';
 
 const ContactSection = ({ language = 'pt-BR' }) => {
@@ -11,6 +12,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
   
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [erro, setErro] = useState(null);
   const [activeTab, setActiveTab] = useState('quick'); // 'quick' ou 'form'
   
   // Traduções
@@ -161,21 +163,54 @@ const ContactSection = ({ language = 'pt-BR' }) => {
     });
   };
   
+  // Este formulário NÃO enviava nada: era um setTimeout que só acendia a
+  // mensagem de sucesso. Toda proposta digitada aqui era descartada em silêncio,
+  // e quem escreveu ia embora achando que tinha mandado. Agora vai por EmailJS,
+  // e o erro é mostrado em vez de engolido.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simular envio
-    setTimeout(() => {
+    setErro(null);
+
+    const servico = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const template = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const chave = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+    // Sem credencial configurada, não finge que enviou: manda pelo cliente de
+    // e-mail do próprio visitante, que é um caminho que de fato chega.
+    if (!servico || !template || !chave) {
+      const assunto = encodeURIComponent(`Contato do portfólio — ${formData.name || 'sem nome'}`);
+      const corpo = encodeURIComponent(
+        `Nome: ${formData.name}\nE-mail: ${formData.email}\nEmpresa: ${formData.company}\n\n${formData.message}`
+      );
+      window.location.href = `mailto:davidbecam006@gmail.com?subject=${assunto}&body=${corpo}`;
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { default: emailjs } = await import('@emailjs/browser');
+      await emailjs.send(
+        servico,
+        template,
+        {
+          from_name: formData.name,
+          reply_to: formData.email,
+          company: formData.company,
+          message: formData.message,
+        },
+        { publicKey: chave }
+      );
       setLoading(false);
       setSubmitted(true);
       setFormData({ name: '', email: '', company: '', message: '' });
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setSubmitted(false);
-      }, 5000);
-    }, 1500);
+      setTimeout(() => setSubmitted(false), 8000);
+    } catch (falha) {
+      setLoading(false);
+      setErro(
+        'Não consegui enviar agora. Escreva direto para davidbecam006@gmail.com — respondo no mesmo dia.'
+      );
+    }
   };
 
   return (
@@ -224,7 +259,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
               </div>
               
               <a 
-                href="/cv_daviqr1.pdf" 
+                href={getPublicUrl("cv_daviqr1.pdf")} 
                 target="_blank" 
                 className="flex items-center text-sm text-blue-400 hover:text-blue-300 transition-colors"
               >
@@ -372,7 +407,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                         
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <a 
-                            href="/cv_daviqr1_pt.pdf" 
+                            href={getPublicUrl("cv_daviqr1_pt.pdf")} 
                             target="_blank" 
                             className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
                           >
@@ -383,7 +418,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                           </a>
                           
                           <a 
-                            href="/cv_daviqr1_en.pdf" 
+                            href={getPublicUrl("cv_daviqr1_en.pdf")} 
                             target="_blank" 
                             className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
                           >
@@ -393,16 +428,9 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                             <span className="text-sm text-white">{t.english}</span>
                           </a>
                           
-                          <a 
-                            href="/cv_daviqr1_zh.pdf" 
-                            target="_blank" 
-                            className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
-                          >
-                            <div className="mr-3 text-red-400">
-                              <span className="font-bold">中文</span>
-                            </div>
-                            <span className="text-sm text-white">{t.chinese}</span>
-                          </a>
+                          {/* O CV em chinês não existe. Link para arquivo ausente
+                              é pior que ausência de link: o recrutador clica e cai
+                              num 404. Volta quando o arquivo existir. */}
                         </div>
                       </div>
                     </div>
@@ -417,7 +445,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <a 
-                            href="/cv_daviqr1.pdf" 
+                            href={getPublicUrl("cv_daviqr1.pdf")} 
                             target="_blank" 
                             className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
                           >
@@ -428,7 +456,7 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                           </a>
                           
                           <a 
-                            href="/portfolio_daviqr1.pdf" 
+                            href={getPublicUrl("portfolio_daviqr1.pdf")} 
                             target="_blank" 
                             className="flex items-center p-3 bg-gray-700/50 hover:bg-gray-700/70 rounded-md transition-colors"
                           >
@@ -485,6 +513,11 @@ const ContactSection = ({ language = 'pt-BR' }) => {
                     </div>
                   ) : (
                     <form className="space-y-5" onSubmit={handleSubmit}>
+                      {erro && (
+                        <div role="alert" className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                          {erro}
+                        </div>
+                      )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-sm font-medium text-gray-300 mb-1">{t.name}</label>

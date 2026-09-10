@@ -48,10 +48,23 @@
   overflow-x: hidden;
 }
 
+/* Todos os filhos empilham na mesma célula do grid — mas só quem tem
+   .parallax__layer anima. Antes o seletor era `.parallax > *`, e isso atingia
+   também os botões, os pontos e o <canvas> do astronauta: elementos sem
+   --parallax-speed, onde calc(var(--parallax-speed) * 1vh) fica inválido e
+   derruba o `transform` inteiro para unset. Era por isso que os botões perdiam
+   o -translate-x-1/2 do Tailwind e saltavam para a direita. */
 .parallax > * {
   grid-area: stack;
-  animation: parallax linear;
-  animation-timeline: scroll();
+}
+
+/* O default 0 garante que o calc() nunca fique inválido, mesmo se alguém
+   adicionar uma camada e esquecer de declarar a velocidade. */
+.parallax__layer {
+  --parallax-speed: 0;
+  animation: parallax linear both;
+  animation-timeline: scroll(root block);
+  will-change: transform;
 }
 
 .parallax > img {
@@ -83,7 +96,12 @@
   z-index: 6;
 }
 
+/* A cratera não declarava --parallax-speed: era a única das 6 camadas com o
+   calc() inválido, e por isso ficava parada mesmo onde o efeito funcionava.
+   90 porque ela é a camada mais à frente e precisa ser mais lenta que os 140
+   da mountain2 — parallax é isso: quanto mais perto, menos desloca. */
 .parallax__crater {
+  --parallax-speed: 90;
   z-index: 7;
 }
 
@@ -106,6 +124,15 @@
 @keyframes parallax {
   to {
     transform: translateY(calc(var(--parallax-speed) * 1vh));
+  }
+}
+
+/* Acessibilidade: quem pediu menos movimento no sistema não recebe o parallax.
+   O fallback em GSAP no Hero.jsx respeita a mesma preferência. */
+@media (prefers-reduced-motion: reduce) {
+  .parallax__layer {
+    animation: none;
+    transform: none;
   }
 }
 
